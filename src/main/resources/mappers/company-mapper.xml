@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper 
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="companyMapper">
+
+	<resultMap type="Company" id="companyResultSet">
+		<id property="comCode" column="COM_CODE"/>
+		<result property="comAdmin" column="ADMIN_ID"/>
+		<result property="comName" column="COM_NAME"/>
+		<result property="comAddress" column="COM_ADDRESS"/>
+		<result property="sempNum" column="SEMP_NUM"/>
+	</resultMap>
+	
+	<resultMap type="Company" id="companyStatusResultSet">
+		<id property="comCode" column="COM_CODE"/>
+		<result property="comAdmin" column="ADMIN_ID"/>
+		<result property="comName" column="COM_NAME"/>
+		<result property="comAddress" column="COM_ADDRESS"/>
+		<result property="sempNum" column="SEMP_NUM"/>
+		<result property="snackStatus" column="SUBS_STATUS"/>
+		<result property="birthStatus" column="BSERVICE_STATUS"/>
+	</resultMap>
+	
+	<insert id="insertCompany" parameterType="Company">
+		INSERT INTO COMPANY
+		VALUES(#{comCode}, #{comAdmin}, #{comName}, #{comAddress}, #{sempNum})
+	</insert>
+	
+	<select id="selectCompany" parameterType="string" resultMap="companyResultSet">
+		SELECT *
+		FROM COMPANY
+		WHERE COM_CODE=#{comCode}
+	</select>
+	
+	<update id="updateCompany" parameterType="Company">
+		UPDATE COMPANY
+		SET COM_NAME=#{comName}, COM_ADDRESS=#{comAddress}
+		WHERE COM_CODE=#{comCode}
+	</update>
+	
+	<update id="updateCompanyAdmin" parameterType="hashMap">
+		UPDATE COMPANY
+		SET ADMIN_ID=#{memId}
+		WHERE COM_CODE=#{comCode}
+	</update>
+	
+	<select id="searchComCode" parameterType="string" resultType="string">
+		SELECT COM_NAME
+		FROM COMPANY
+		WHERE COM_CODE=#{comCode}
+	</select>
+	
+	<select id="selectCompanyList" resultMap="companyStatusResultSet">
+		SELECT A.COM_NAME, A.COM_CODE, A.COM_ADDRESS, A.SEMP_NUM, NVL(C.SUBS_STATUS, 'N') SUBS_STATUS, NVL(B.BSERVICE_STATUS, 'N') BSERVICE_STATUS  
+		FROM COMPANY A
+		LEFT OUTER JOIN BIRTHDAY_SERVICE B ON A.COM_CODE = B.COM_CODE
+		LEFT OUTER JOIN SNACK_SUBS C ON A.COM_CODE = C.COM_CODE
+		WHERE B.BSERVICE_STATUS = 'Y'
+        OR C.SUBS_STATUS = 'Y'
+	</select>
+	
+	<select id="searchComName" parameterType="string" resultMap="companyResultSet">
+		SELECT *
+		FROM COMPANY
+		WHERE COM_NAME=#{comName}
+	</select>
+	
+	<update id="updateSempNum" parameterType="hashMap">
+		UPDATE COMPANY
+		SET SEMP_NUM=#{sempNum}
+		WHERE COM_NAME=#{comName}
+	</update>
+	
+	<select id="selectOriginCom" parameterType="string" resultMap="companyResultSet">
+		SELECT *
+        FROM COMPANY
+        WHERE SEMP_NUM=#{sempNum}
+	</select>
+	
+	<update id="updateComNull" parameterType="hashMap">
+		UPDATE COMPANY
+		SET SEMP_NUM=#{empty}
+		WHERE COM_CODE=#{comCode}
+	</update>
+	
+	<select id="selectSempCompany" parameterType="string" resultMap="companyStatusResultSet">
+		SELECT A.COM_NAME, A.COM_CODE, A.COM_ADDRESS, A.SEMP_NUM, NVL(C.SUBS_STATUS, 'N') SUBS_STATUS, NVL(B.BSERVICE_STATUS, 'N') BSERVICE_STATUS  
+		FROM COMPANY A
+		LEFT OUTER JOIN BIRTHDAY_SERVICE B ON A.COM_CODE = B.COM_CODE
+		LEFT OUTER JOIN SNACK_SUBS C ON A.COM_CODE = C.COM_CODE
+		WHERE A.COM_CODE=#{comCode}
+	</select>
+</mapper>

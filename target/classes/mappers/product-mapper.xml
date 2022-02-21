@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper 
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="productMapper">
+	<resultMap type="Product" id="productResultSet">
+	 	<id property="snackNo" column="SNACK_NO"/>
+		<result property="snackName" column="SNACK_NAME"/>
+		<result property="purchasePrice" column="PURCHASE_PRICE"/>
+		<result property="releasePrice" column="RELEASE_PRICE"/>
+		<result property="enrollDate" column="ENROLL_DATE"/>
+		<result property="status" column="STATUS"/>
+		<result property="stock" column="STOCK"/>
+		<result property="unit" column="UNIT"/>
+		<result property="categoryNo" column="CATEGORY_NO"/>
+		<result property="detailNo" column="DETAIL_NO"/>
+		<result property="tasteNo" column="TASTE_NO"/>
+		<result property="aromaNo" column="AROMA_NO"/>
+		<result property="changeName" column="CHANGE_NAME"/>
+	</resultMap>
+
+
+	<resultMap type="WishListDtail" id="WishListDtailResult">
+	 	<id property="wishDetailNo" column="WISHDETAIL_NO"/>
+		<result property="comCode" column="COM_CODE"/>
+		<result property="comName" column="COM_NAME"/>
+		<result property="wishNo" column="WISH_NO"/>
+		<result property="categoryNo" column="CATEGORY_NO"/>
+		<result property="snackNo" column="SNACK_NO"/>
+		<result property="snackName" column="SNACK_NAME"/>
+		<result property="count" column="COUNT"/>
+		<result property="releasePrice" column="RELEASE_PRICE"/>
+		<result property="wishEndDate" column="WISH_END_DATE"/>
+		<result property="changeName" column="CHANGE_NAME"/>
+	</resultMap>
+
+ <select id="selectList" resultMap="productResultSet">
+		SELECT S.SNACK_NO , S.SNACK_NAME , S.RELEASE_PRICE , S.CATEGORY_NO
+				 , S.DETAIL_NO ,S.TASTE_NO , S.AROMA_NO , A.CHANGE_NAME
+		FROM SNACK S
+		LEFT OUTER JOIN SNACK_ATTACHMENT A ON (S.SNACK_NO = A.SNACK_NO)
+		WHERE STATUS = 'Y' 
+		AND CATEGORY_NO = 1
+		AND DETAIL_NO = #{dtc}
+</select>
+
+<!-- TO_DATE(EXTRACT(YEAR FROM SYSDATE)  ||  EXTRACT(MONTH FROM SYSDATE) || DELIVERY_DATE , 'YYYY-MM-DD') -->
+<select id="selectDeliveryDate" parameterType="string" resultType = "string">
+	SELECT DELIVERY_DATE
+	FROM SNACK_SUBS
+	WHERE COM_CODE = #{comCode}
+</select>
+
+<select id="chkWishList" resultType="_int">
+	SELECT COUNT(COM_CODE)
+	FROM WISHLIST
+	WHERE COM_CODE = #{comCode}
+	AND STATUS = 'N'
+</select>
+
+
+<insert id="insertWishList" parameterType="hashMap">
+	INSERT INTO WISHLIST
+	VALUES (WISH_SEQ.NEXTVAL , #{comCode} , #{wishEndDate}, DEFAULT)
+</insert>
+
+<select id="selectSubWishNo" resultType="_int">
+	SELECT WISH_NO
+	FROM WISHLIST
+	WHERE COM_CODE = #{comCode}
+	AND STATUS = 'N'
+</select>
+
+<insert id="insertWishDetail" parameterType="hashMap">
+	INSERT INTO WISHLIST_DETAIL
+	VALUES (WISH_DETAIL_SEQ.NEXTVAL , #{SubWishNo} , #{wishSnackNo}, DEFAULT )
+</insert>
+
+<select id="chkSnackNo" resultType="_int">
+	SELECT COUNT(SNACK_NO)
+	FROM WISHLIST_DETAIL
+	WHERE WISH_NO = #{SubWishNo}
+	AND SNACK_NO = #{wishSnackNo}
+</select>
+
+<update id="updateSnackCount" parameterType="hashMap">
+	UPDATE WISHLIST_DETAIL SET COUNT = COUNT + 1
+	WHERE WISH_NO = #{SubWishNo}
+	AND SNACK_NO = #{wishSnackNo} 
+</update>
+
+ <select id="selectDrinkList" resultMap="productResultSet">
+		SELECT S.SNACK_NO , S.SNACK_NAME , S.RELEASE_PRICE , S.CATEGORY_NO
+				 , S.DETAIL_NO ,S.TASTE_NO , S.AROMA_NO , A.CHANGE_NAME
+		FROM SNACK S
+		LEFT OUTER JOIN SNACK_ATTACHMENT A ON (S.SNACK_NO = A.SNACK_NO)
+		WHERE STATUS = 'Y' 
+		AND CATEGORY_NO = 2
+		AND DETAIL_NO = #{dtc}
+</select>
+
+ <select id="selectFoodList" resultMap="productResultSet">
+		SELECT S.SNACK_NO , S.SNACK_NAME , S.RELEASE_PRICE , S.CATEGORY_NO
+				 , S.DETAIL_NO ,S.TASTE_NO , S.AROMA_NO , A.CHANGE_NAME
+		FROM SNACK S
+		LEFT OUTER JOIN SNACK_ATTACHMENT A ON (S.SNACK_NO = A.SNACK_NO)
+		WHERE STATUS = 'Y' 
+		AND CATEGORY_NO = 3
+		AND DETAIL_NO = #{dtc}
+</select>
+
+<select id="selectWishDetailList"  resultMap="WishListDtailResult">
+	SELECT 	C.COM_CODE , D.COM_NAME 
+		,A.WISH_NO, B.CATEGORY_NO, A.SNACK_NO ,
+         B.SNACK_NAME  , A.COUNT , B.RELEASE_PRICE , C.WISH_END_DATE , E.CHANGE_NAME
+	FROM WISHLIST_DETAIL A
+	JOIN SNACK B ON (A.SNACK_NO = B.SNACK_NO)
+    LEFT OUTER JOIN SNACK_ATTACHMENT E ON (B.SNACK_NO = E.SNACK_NO)
+	JOIN WISHLIST C ON (A.WISH_NO = C.WISH_NO)
+	JOIN COMPANY D ON (C.COM_CODE = D.COM_CODE)
+	WHERE C.COM_CODE = #{comCode} AND C.STATUS = 'N'
+</select>
+
+
+<update id="updateWishEndDate" parameterType="hashMap">
+	UPDATE WISHLIST 
+	SET WISH_END_DATE = #{wishEndDate} 
+	WHERE COM_CODE = #{comCode}
+</update>
+
+ <!-- 위시리스트 수량 변경 -->
+<update id="updatePlusCount" parameterType="hashMap">
+	UPDATE WISHLIST_DETAIL SET COUNT = #{addCount}
+	WHERE SNACK_NO = #{snackNo} 
+	AND WISH_NO = #{wishNo}
+</update>
+
+<!-- 위시리스트 상품 삭제 -->
+<delete id="deleteSnack">
+	DELETE FROM WISHLIST_DETAIL 
+	WHERE WISH_NO = #{wishNo}
+	AND SNACK_NO = #{snackNo}
+</delete>
+
+<update id="endWishList">
+	UPDATE WISHLIST SET STATUS ='Y'
+	WHERE WISH_NO=#{wishNo}
+</update>
+
+<select id="chkEmpSub" resultType="_int">
+	SELECT COUNT(SUBS_NO)
+	FROM SNACK_SUBS
+	WHERE COM_CODE=#{comCode}
+	AND SUBS_STATUS ='Y'
+</select>
+
+<!-- 스케줄러 테스트 -->
+<update id="updateClosingDate">
+	UPDATE WISHLIST SET STATUS = 'Y' 
+	WHERE WISH_END_DATE = #{today}
+</update> 
+
+</mapper>

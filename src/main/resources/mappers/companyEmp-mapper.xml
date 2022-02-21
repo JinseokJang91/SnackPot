@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper 
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="companyEmpMapper">
+
+	<resultMap type="CompanyEmp" id="companyEmpResultSet">
+		<id property="cempSeq" column="CEMP_SEQ"/>
+		<result property="cempName" column="CEMP_NAME"/>
+		<result property="cempDept" column="CEMP_DEPT"/>
+		<result property="cempJob" column="CEMP_JOB"/>
+		<result property="cempEmail" column="CEMP_EMAIL"/>
+		<result property="cempPhone" column="CEMP_PHONE"/>
+		<result property="cempBirth" column="CEMP_BIRTH"/>
+		<result property="cempNum" column="CEMP_NUM"/>
+		<result property="cempStatus" column="CEMP_STATUS"/>
+		<result property="comCode" column="COM_CODE"/>
+	</resultMap>
+	
+	<select id="selectEmpList" resultMap="companyEmpResultSet">
+		SELECT * FROM COMPANY_EMP
+		WHERE CEMP_STATUS='Y'
+		AND COM_CODE=#{comCode}
+	</select>
+	
+	<select id="checkNum" parameterType="hashMap" resultType="_int">
+		SELECT COUNT (*)
+		FROM COMPANY_EMP
+		WHERE CEMP_NUM=#{cempNum}
+		AND COM_CODE=#{comCode}
+	</select>
+	
+	<insert id="insertEmp" parameterType="CompanyEmp">
+		INSERT INTO COMPANY_EMP
+		VALUES(COM_EMP_SEQ.NEXTVAL, #{cempName}, #{cempDept}, #{cempJob}, #{cempEmail}, #{cempPhone}, #{cempBirth}, #{cempNum}, #{cempStatus}, #{comCode})
+	</insert>
+	
+	<select id="selectEmp" parameterType="hashMap" resultMap="companyEmpResultSet">
+		SELECT * FROM COMPANY_EMP
+		WHERE CEMP_NUM=#{cempNum} 	
+		AND COM_CODE=#{comCode}
+	</select>
+	
+	<update id="updateEmp" parameterType="CompanyEmp">
+		UPDATE COMPANY_EMP
+		SET CEMP_NAME=#{cempName}, CEMP_DEPT=#{cempDept}, CEMP_JOB=#{cempJob}, CEMP_EMAIL=#{cempEmail}, CEMP_PHONE=#{cempPhone}, CEMP_BIRTH=#{cempBirth}
+		WHERE CEMP_NUM=#{cempNum}
+		AND COM_CODE=#{comCode}
+	</update>
+	
+	<update id="deleteEmp" parameterType="hashMap">
+		UPDATE COMPANY_EMP
+		SET CEMP_STATUS='N'
+		WHERE CEMP_NUM=#{cempNum}
+		AND COM_CODE=#{comCode}
+	</update>
+</mapper>

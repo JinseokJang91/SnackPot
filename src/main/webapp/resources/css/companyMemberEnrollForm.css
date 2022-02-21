@@ -1,0 +1,37 @@
+		#outer{
+            text-align: center;
+        }
+        #inner{
+            display: inline-block;
+        }
+        #title{
+            color: rgb(245, 208, 66);
+        }
+        .input{
+            background-color: rgb(246, 242, 225);
+            border: none;
+            width: 300px;
+            height: 40px;
+            margin: 10px;
+        }
+        #joinBtn{
+            background-color: rgb(10, 23, 78);
+            border: none;
+            width: 300px;
+            height: 60px;
+            margin: 10px;
+            color: rgb(245, 208, 66);
+            font-size: 15px;
+            font-weight: bold;
+        }
+        #ck{
+            font-size: 12px;
+        }
+        .check{
+        	padding: 5px;
+        	background-color: rgb(255, 255, 255);
+            border-color: rgb(245, 208, 66);
+            border-style: solid;
+            font-weight: bold;
+            color: rgb(10, 23, 78);
+        }

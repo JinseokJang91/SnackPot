@@ -1,0 +1,4 @@
+21-10-20 17:30:22 [INFO ] ContextLoader.initWebApplicationContext{271} - Root WebApplicationContext: initialization started
+21-10-20 17:30:23 [INFO ] ContextLoader.initWebApplicationContext{307} - Root WebApplicationContext initialized in 1112 ms
+21-10-20 17:30:23 [INFO ] DispatcherServlet.initServletBean{525} - Initializing Servlet 'appServlet'
+21-10-20 17:30:24 [INFO ] DispatcherServlet.initServletBean{547} - Completed initialization in 1075 ms

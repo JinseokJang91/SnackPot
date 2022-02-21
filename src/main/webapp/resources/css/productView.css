@@ -1,0 +1,108 @@
+@charset "UTF-8";
+
+/*===메뉴바 아래 드롭다운 메뉴바(스낵류 , 음료 , 간편식)=== */
+.dropdown:hover .wish-menu { 
+   display: block;
+   margin-top: 0;
+   margin-left: 180px;
+}
+.wish-nav-link {
+  color: black;
+  font-size: 15px;
+  font-weight: bolder;
+}
+.wish-navbar{
+  justify-content: center;
+}
+/*스낵류 ,음료 , 간편식 드롭다운 메뉴바*/
+.nav-item>label{
+	margin-left: 130px;	
+}
+/*스낵류 ,음료 , 간편식 드롭다운 메뉴바 색*/
+.nav-item>label>.wish-nav-link{
+	color : black;
+}
+/*스낵류 ,음료 , 간편식 드롭다운 메뉴바 마우스 오버*/
+.nav-item>label>.wish-nav-link:hover{
+	color :rgb(245, 208, 66);
+}
+/*=====상세보기 메뉴바 (상위 카테고리 안의 하위 카테고리)=====*/
+.detail-menu{
+  text-align: center;
+}
+.btn-group> .btn-outline{
+border-color : lightgray;
+padding : 5px 70px;
+}
+.btn-outline:hover{
+background-color: rgb(245, 208, 66);
+}
+
+/*=========간식리스트 card==========*/
+.row{
+padding: 0 40px;
+}
+.col{
+padding: 5px;
+}
+.card{
+border: none;
+position: relative;
+
+}
+/*간식 이미지*/
+.card-img-top{
+width: 100px;
+height: 200px;
+padding-left : 30px;
+padding-right : 30px;
+padding-top: 10px;
+}
+.card-body{
+width: 250px;
+height:70px;
+padding: 5%;
+}
+.card-title{
+font-weight: bold;
+height:10px;
+}
+
+/*====간식위시리스트 버튼====*/
+.wishBtn{
+position: absolute;
+width: 200px;
+left: 30px;
+top: 30%;
+text-align: center;
+opacity: 0;
+transition: opacity .35e ease;
+}
+.card:hover .wishBtn{
+opacity: 1;
+
+}
+
+/*메뉴 랭크*/
+.rank li {
+float: right;
+margin: 20px  0px;
+list-style: none;
+text-align: center;
+}
+.rank li > a {
+   margin-right: 50px;
+}
+.justify-content-center{
+   margin-left: 30%;
+   height: 35px;
+}
+/*메뉴바 아래 메뉴바*/
+.ctg > .dropdown-menu {
+  background-color: white;
+  
+}
+.ctg > .dropdown-menu > .dropdown-item {
+  color: black;
+   
+}

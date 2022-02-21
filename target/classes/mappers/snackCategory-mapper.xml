@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper 
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="snackCategoryMapper">
+
+	<resultMap type="SnackSubCategory" id="subCategoryResultSet">
+		<id property="detailNo" column="DETAIL_NO"/>
+		<result property="detailCategory" column="DETAIL"/>
+		<result property="categoryNo" column="CATEGORY_NO"/>
+	</resultMap>
+	
+	<resultMap type="Aroma" id="aromaResultSet">
+		<id property="aromaNo" column="AROMA_NO"/>
+		<result property="aroma" column="AROMA"/>
+	</resultMap>
+	
+	<resultMap type="Taste" id="tasteResultSet">
+		<id property="tasteNo" column="TASTE_NO"/>
+		<result property="taste" column="TASTE"/>
+	</resultMap>
+	
+	
+	<select id="selectSubCategory" parameterType="_int" resultMap="subCategoryResultSet">
+		SELECT *
+		FROM SNACK_CATEGORY_DETAIL
+		WHERE CATEGORY_NO = #{categoryNo}
+	</select>
+	
+	<select id="selectAroma" resultMap="aromaResultSet">
+		SELECT *
+		FROM AROMA
+	</select>
+
+	<select id="selectTaste" resultMap="tasteResultSet">
+		SELECT *
+		FROM TASTE
+	</select>
+	
+
+</mapper>

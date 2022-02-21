@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper 
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="companyMemberMapper">
+
+	<resultMap type="CompanyMember" id="companyMemberResultSet">
+		<id property="memId" column="MEM_ID"/>
+		<result property="memPw" column="MEM_PW"/>
+		<result property="memName" column="MEM_NAME"/>
+		<result property="memPhone" column="MEM_PHONE"/>
+		<result property="memEmail" column="MEM_EMAIL"/>
+		<result property="comCode" column="COM_CODE"/>
+		<result property="admin" column="ADMIN"/>
+		<result property="memStatus" column="MEM_STATUS"/>
+	</resultMap>
+	
+	<select id="idCheck" parameterType="string" resultType="_int">
+		SELECT COUNT (*)
+		FROM COMPANY_MEMBER
+		WHERE MEM_ID=#{memId}
+	</select>
+	
+	<select id="codeCheck" parameterType="string" resultType="_int">
+		SELECT COUNT (*)
+		FROM COMPANY
+		WHERE COM_CODE=#{comCode}
+	</select>
+	
+	<insert id="insertCompanyMember" parameterType="CompanyMember">
+		INSERT INTO COMPANY_MEMBER
+		VALUES(#{memId}, #{memPw}, #{memName}, #{memPhone}, #{memEmail}, #{comCode}, #{admin}, #{memStatus})
+	</insert>
+	
+	<insert id="insertCompanyAdmin" parameterType="CompanyMember">
+		INSERT INTO COMPANY_MEMBER
+		VALUES(#{memId}, #{memPw}, #{memName}, #{memPhone}, #{memEmail}, #{comCode}, #{admin}, #{memStatus})
+	</insert>
+	
+	<select id="loginMember" parameterType="CompanyMember" resultMap="companyMemberResultSet">
+		SELECT * FROM COMPANY_MEMBER
+		WHERE MEM_ID=#{memId} AND MEM_STATUS='Y'	
+	</select>
+	
+	<select id="findId" parameterType="hashMap" resultMap="companyMemberResultSet">
+		SELECT * FROM COMPANY_MEMBER
+		WHERE MEM_NAME=#{memName} AND MEM_PHONE=#{memPhone}	
+	</select>
+	
+	<update id="updateMember" parameterType="CompanyMember">
+		UPDATE COMPANY_MEMBER
+		SET MEM_NAME=#{memName}, MEM_PHONE=#{memPhone}, MEM_EMAIL=#{memEmail}
+		WHERE MEM_ID=#{memId}
+	</update>
+	
+	<update id="updatePw" parameterType="CompanyMember">
+		UPDATE COMPANY_MEMBER
+		SET MEM_PW=#{memPw}
+		WHERE MEM_ID=#{memId}
+	</update>
+	
+	<update id="deleteMem" parameterType="string">
+		UPDATE COMPANY_MEMBER
+		SET MEM_STATUS='N'
+		WHERE MEM_ID=#{memId}
+	</update>
+	
+	<insert id="insertNewAdmin" parameterType="CompanyMember">
+		INSERT INTO COMPANY_MEMBER
+		VALUES(#{memId}, #{memPw}, #{memName}, #{memPhone}, #{memEmail}, #{comCode}, #{admin}, #{memStatus})
+	</insert>
+	
+	<update id="retireAdmin" parameterType="string">
+		UPDATE COMPANY_MEMBER
+		SET ADMIN='N'
+		WHERE MEM_ID=#{memId}
+	</update>
+	
+	<select id="selectId" parameterType="hashMap" resultType="string">
+		SELECT MEM_ID
+		FROM COMPANY_MEMBER
+		WHERE MEM_ID=#{memId}
+		AND COM_CODE=#{comCode}
+	</select>
+	
+	<update id="updateNewAdmin" parameterType="hashMap">
+		UPDATE COMPANY_MEMBER
+		SET ADMIN='Y'
+		WHERE MEM_ID=#{memId}
+		AND COM_CODE=#{comCode}
+	</update>
+	
+	<select id="selectSnackSubSta" parameterType="string" resultType="string">
+		SELECT C.SUBS_STATUS
+		FROM COMPANY_MEMBER A
+		JOIN COMPANY B ON A.MEM_ID = B.ADMIN_ID
+		JOIN SNACK_SUBS C ON B.COM_CODE = C.COM_CODE
+		WHERE A.MEM_ID = #{memId}
+	</select>
+	
+	<select id="selectbirthSubSta" parameterType="string" resultType="string">
+		SELECT C.BSERVICE_STATUS
+		FROM COMPANY_MEMBER A
+		JOIN COMPANY B ON A.MEM_ID = B.ADMIN_ID
+		JOIN BIRTHDAY_SERVICE C ON B.COM_CODE = C.COM_CODE
+		WHERE A.MEM_ID = #{memId}
+	</select>
+	
+	<update id="deleteAllMem" parameterType="string">
+		UPDATE COMPANY_MEMBER
+		SET MEM_STATUS='N'
+		WHERE COM_CODE=#{comCode}
+	</update>
+	
+	<select id="checkMember" parameterType="CompanyMember" resultType="_int">
+		SELECT COUNT (*)
+		FROM COMPANY_MEMBER
+		WHERE MEM_ID=#{memId}
+		AND MEM_NAME=#{memName}
+		AND MEM_PHONE=#{memPhone}
+	</select>
+	
+</mapper>

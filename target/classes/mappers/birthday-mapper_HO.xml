@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper 
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="birthdayMapper_HO">
+	
+	<resultMap type="HO_SendingStatus" id="curStsResultSet">
+		<id property="curStatusNo" column="SCSTATUS_NO"></id>
+		<result property="cempSeq" column="CEMP_SEQ"></result>
+		<result property="cempDept" column="CEMP_DEPT"></result>
+		<result property="cempJob" column="CEMP_JOB"></result>
+		<result property="cempName" column="CEMP_NAME"></result>
+		<result property="cempPhone" column="CEMP_PHONE"></result>
+		<result property="cempBirth" column="CEMP_BIRTH"></result>
+		<result property="sendingMsgDate" column="SENDING_MESSAGE_DATE"></result>
+		<result property="selectDate" column="SELECT_COMPLETE_DATE"></result>
+		<result property="comCode" column="COM_CODE"></result>
+	</resultMap>
+	
+	<resultMap type="HO_SendList" id="sendListResultSet">
+		<id property="sListNo" column="SLIST_NO"></id>
+		<result property="cempDept" column="CEMP_DEPT"></result>
+		<result property="cempJob" column="CEMP_JOB"></result>
+		<result property="cempName" column="CEMP_NAME"></result>
+		<result property="cempPhone" column="CEMP_PHONE"></result>
+		<result property="cempBirth" column="CEMP_BIRTH"></result>
+		<result property="sendMsgDate" column="SENDING_MESSAGE_DATE"></result>
+		<result property="sListStatus" column="SLIST_STATUS"></result>
+		<result property="glistNo" column="GLIST_NO"></result>
+		<result property="cempSeq" column="CEMP_SEQ"></result>
+	</resultMap>
+		
+	<resultMap type="HO_GiftList" id="giftListResultSet">
+		<id property="giftNo" column="GIFT_NO"></id>
+		<result property="giftBrand" column="GIFT_BRAND"></result>
+		<result property="giftName" column="GIFT_NAME"></result>
+		<result property="giftPrice" column="GIFT_PRICE"></result>
+		<result property="changeName" column="CHANGE_NAME"></result>
+	</resultMap>
+	
+	<resultMap type="GiftAttachment" id="AttachmentResultSet">
+		<id property="fileNo" column="FILE_NO"></id>
+		<result property="originName" column="ORIGIN_NAME"></result>
+		<result property="changeName" column="CHANGE_NAME"></result>
+		<result property="filePath" column="FILE_PATH"></result>
+		<result property="giftRefNo" column="GIFT_REF_NO"></result>
+	</resultMap>
+	
+	<!-- 본사용 -->
+	<select id="subscribeChk" parameterType="String" resultType="_int">
+		SELECT COUNT(*) FROM BIRTHDAY_SERVICE WHERE COM_CODE = #{com_code} AND BSERVICE_STATUS='Y'
+	</select>
+	
+	<select id="selectSendingTime" resultType="String">
+		SELECT SENDING_TIME	FROM BIRTHDAY_SERVICE
+		WHERE COM_CODE=#{comCode} AND BSERVICE_STATUS='Y'
+	</select>
+	<!-- 발송예정 -->
+	<select id="selectStatusList" parameterType="HO_SendingStatus" resultMap="curStsResultSet">
+		<![CDATA[
+			SELECT 
+			B.CEMP_SEQ, B.CEMP_DEPT, B.CEMP_JOB, B.CEMP_NAME, B.CEMP_PHONE, B.CEMP_BIRTH
+			, A.SENDING_MESSAGE_DATE, A.SELECT_COMPLETE_DATE
+			FROM SENDING_CURRENT_STATUS A
+			JOIN COMPANY_EMP B ON A.CEMP_SEQ = B.CEMP_SEQ
+			JOIN SNACKPOT_EMP C ON A.COM_CODE = C.SEMP_COMCODE
+			WHERE TO_CHAR(B.CEMP_BIRTH,'MM') = TO_CHAR(SYSDATE,'MM')
+			AND TO_CHAR(B.CEMP_BIRTH,'DD') > TO_CHAR(SYSDATE,'DD')+#{sendingTime}
+			AND A.SELECT_COMPLETE_DATE IS NULL
+			AND A.COM_CODE=#{comCode}
+			AND B.CEMP_STATUS='Y'
+			ORDER BY SENDING_MESSAGE_DATE
+		]]>
+	</select>
+	<!-- 발송완료 -->
+	<select id="completeStatusList" parameterType="String" resultMap="curStsResultSet">
+		SELECT 
+		B.CEMP_SEQ, B.CEMP_DEPT, B.CEMP_JOB, B.CEMP_NAME, B.CEMP_PHONE, B.CEMP_BIRTH
+		, A.SENDING_MESSAGE_DATE, A.SELECT_COMPLETE_DATE
+		FROM SENDING_CURRENT_STATUS A
+		JOIN COMPANY_EMP B ON A.CEMP_SEQ = B.CEMP_SEQ
+		WHERE TO_CHAR(B.CEMP_BIRTH,'MM') = TO_CHAR(SYSDATE,'MM')
+		AND A.COM_CODE=#{comCode}
+           AND A.SELECT_COMPLETE_DATE IS NOT NULL
+		AND B.CEMP_STATUS='Y'
+		ORDER BY SENDING_MESSAGE_DATE
+	</select>
+	
+	<select id="selectSendList" parameterType="String" resultMap="sendListResultSet">
+		SELECT 
+		B.CEMP_DEPT, B.CEMP_JOB, B.CEMP_NAME, B.CEMP_PHONE, B.CEMP_BIRTH
+		, A.SENDING_MESSAGE_DATE, A.GLIST_NO
+		FROM SENDING_LIST A
+		JOIN COMPANY_EMP B ON A.CEMP_SEQ = B.CEMP_SEQ
+		JOIN SNACKPOT_EMP C ON B.COM_CODE = C.SEMP_COMCODE
+		WHERE TO_CHAR(B.CEMP_BIRTH,'MM') = TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE,'MM'),1),'MM')
+		AND B.COM_CODE=#{comCode}
+		AND B.CEMP_STATUS='Y'
+		ORDER BY SENDING_MESSAGE_DATE
+	</select>
+	
+	<!-- 선물 상품 전체 리스트 조회 -->
+	<select id="selectGiftList" resultMap="giftListResultSet">
+		SELECT A.GIFT_NO, A.GIFT_BRAND, A.GIFT_NAME, A.GIFT_PRICE, B.CHANGE_NAME
+		FROM BIRTHDAY_GIFT A
+		JOIN GIFT_ATTACHMENT B ON A.GIFT_NO = B.GIFT_REF_NO
+		WHERE GIFT_STATUS='Y'
+	</select>
+	
+	<select id="selectCtgry" parameterType="_int" resultMap="giftListResultSet">
+			SELECT A.GIFT_NO, A.GIFT_BRAND, A.GIFT_NAME, A.GIFT_PRICE, B.CHANGE_NAME
+			FROM BIRTHDAY_GIFT A
+			JOIN GIFT_ATTACHMENT B ON A.GIFT_NO = B.GIFT_REF_NO
+			WHERE GIFT_STATUS='Y'
+			<choose>
+				<when test="ctgryNum == 1">
+					
+				</when>
+				<when test="ctgryNum == 2">
+					ORDER BY GIFT_PRICE DESC
+				</when>
+				<when test="ctgryNum == 3">
+					ORDER BY GIFT_PRICE ASC
+				</when>
+			</choose>
+	</select>
+	
+	<!-- 선택된 상품 리스트 조회(선택 삭제용) -->
+	<select id="checkedGiftList" parameterType="String" resultMap="giftListResultSet">
+		SELECT A.GIFT_NO, A.GIFT_BRAND, A.GIFT_NAME, A.GIFT_PRICE, B.CHANGE_NAME
+		FROM BIRTHDAY_GIFT A
+		JOIN GIFT_ATTACHMENT B ON A.GIFT_NO = B.GIFT_REF_NO
+		WHERE GIFT_STATUS='Y'
+		AND GIFT_NO=#{giftNo}
+	</select>
+	
+	<!-- 선물 상품 정보 입력 -->
+	<insert id="insertGift" parameterType="HO_GiftList">
+		INSERT INTO BIRTHDAY_GIFT VALUES
+		('BGIFT'||B_GIFT_SEQ.NEXTVAL, #{giftBrand}, #{giftName}, #{giftPrice}, DEFAULT)
+	</insert>
+	
+	<!-- 선물 상품 사진 입력 -->
+	<insert id="insertAttachment" parameterType="GiftAttachment">
+		INSERT INTO GIFT_ATTACHMENT VALUES
+		(GIFT_ATTACHMENT_SEQ.NEXTVAL, #{originName}, #{changeName}, #{filePath}, 'BGIFT'||B_GIFT_SEQ.CURRVAL)
+	</insert>
+	
+	<!-- 수정하기용 선물 객체 정보 가져오기 -->
+	<select id="selectGiftOne" parameterType="String" resultMap="giftListResultSet">
+		SELECT A.GIFT_NO, A.GIFT_BRAND, A.GIFT_NAME, A.GIFT_PRICE, B.CHANGE_NAME
+		FROM BIRTHDAY_GIFT A
+		JOIN GIFT_ATTACHMENT B ON A.GIFT_NO = B.GIFT_REF_NO
+		WHERE GIFT_STATUS='Y'
+		AND GIFT_NO=#{giftNo}
+	</select>
+	
+	<!-- 선물 상품 정보 수정 -->
+	<update id="updateGift" parameterType="HO_GiftList">
+		UPDATE BIRTHDAY_GIFT SET
+		GIFT_BRAND=#{giftBrand}, GIFT_NAME=#{giftName}, GIFT_PRICE=#{giftPrice}
+		WHERE GIFT_NO=#{giftNo} AND GIFT_STATUS='Y'
+	</update>
+	
+	<!-- 선물 상품 사진 수정 -->
+	<update id="updateAttachment" parameterType="GiftAttachment">
+		UPDATE GIFT_ATTACHMENT SET
+		ORIGIN_NAME=#{originName}, CHANGE_NAME=#{changeName}, FILE_PATH=#{filePath}
+		WHERE GIFT_REF_NO=#{giftRefNo}
+	</update>
+	
+	<!-- 선물 상품 삭제(상태 'N'으로 변경) -->
+	<delete id="deleteGift" parameterType="map">
+		DELETE FROM BIRTHDAY_GIFT
+		WHERE GIFT_NO IN
+		<foreach collection="array" item="delArr" open="(" close=")" separator=",">
+			#{delArr}
+		</foreach>
+	</delete>
+</mapper>

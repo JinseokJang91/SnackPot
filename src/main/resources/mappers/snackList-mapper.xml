@@ -1,0 +1,387 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper 
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="snackListMapper">
+
+	<resultMap type="ComListInfo" id="comListInfoResultSet">
+		<id property="subsNo" column="SUBS_NO"/>
+		<result property="comCode" column="COM_CODE"/>
+		<result property="comName" column="COM_NAME"/>
+		<result property="deliveryDate" column="DELIVERY_DATE"/>
+		<result property="settleDate" column="SETTLEMENT_DATE"/>
+		<result property="budget" column="BUDGET"/>
+	</resultMap>
+	
+	<resultMap type="SnackDList" id="snackDListResultSet">
+	 	<id property="snackDNo" column="SNACK_D_NO"/>
+	 	<result property="rowNum" column="ROWNUM"/>
+		<result property="snackListNo" column="SNACK_LIST_NO"/>
+		<result property="categoryNo" column="CATEGORY_NO"/>
+		<result property="categoryName" column="CATEGORY"/>
+		<result property="subCategoryNo" column="DETAIL_NO"/>
+		<result property="subCategoryName" column="DETAIL"/>
+		<result property="snackNo" column="SNACK_NO"/>
+		<result property="snackName" column="SNACK_NAME"/>
+		<result property="amount" column="AMOUNT"/>
+		<result property="releasePrice" column="RELEASE_PRICE"/>
+		<result property="stock" column="STOCK"/>
+		<result property="imageName" column="CHANGE_NAME"/>
+	</resultMap>
+	
+	<resultMap type="SnackList" id="snackListResultSet">
+		<id property="snackListNo" column="SNACK_LIST_NO"/>
+		<result property="comCode" column="COM_CODE"/>
+		<result property="comName" column="COM_NAME"/>
+		<result property="transStatus" column="TRANS_STATUS"/>
+		<result property="budget" column="BUDGET"/>
+		<result property="totalPrice" column="TOTAL_PRICE"/>
+		<result property="transDate" column="TRANS_DATE"/>
+		<result property="content" column="SNACK_NAME"/>
+	</resultMap>
+	
+	<resultMap type="WishListDtail" id="WishListDtailResult">
+	 	<id property="wishDetailNo" column="WISHDETAIL_NO"/>
+		<result property="wishNo" column="WISH_NO"/>
+		<result property="categoryNo" column="CATEGORY_NO"/>
+		<result property="categoryName" column="CATEGORY"/>
+		<result property="subCategoryNo" column="DETAIL_NO"/>
+		<result property="subCategoryName" column="DETAIL"/>
+		<result property="snackNo" column="SNACK_NO"/>
+		<result property="snackName" column="SNACK_NAME"/>
+		<result property="count" column="COUNT"/>
+		<result property="releasePrice" column="RELEASE_PRICE"/>
+		<result property="stock" column="STOCK"/>
+		<result property="changeName" column="CHANGE_NAME"/>
+	</resultMap>
+	
+	<resultMap type="SnackDList" id="WishDetailResultSet">
+		<result property="categoryNo" column="CATEGORY_NO"/>
+		<result property="categoryName" column="CATEGORY"/>
+		<result property="subCategoryNo" column="DETAIL_NO"/>
+		<result property="subCategoryName" column="DETAIL"/>
+		<result property="snackNo" column="SNACK_NO"/>
+		<result property="snackName" column="SNACK_NAME"/>
+		<result property="amount" column="COUNT"/>
+		<result property="releasePrice" column="RELEASE_PRICE"/>
+		<result property="stock" column="STOCK"/>
+		<result property="imageName" column="CHANGE_NAME"/>
+	</resultMap>
+	
+	<select id="selectSubsInfo" parameterType="java.util.HashMap" resultMap="comListInfoResultSet">
+		
+			SELECT A.SUBS_NO, A.COM_CODE, B.COM_NAME, A.DELIVERY_DATE, A.SETTLEMENT_DATE, A.BUDGET
+			FROM SNACK_SUBS A
+			JOIN COMPANY B ON A.COM_CODE = B.COM_CODE
+			WHERE A.SUBS_STATUS = 'Y'
+			AND A.COM_CODE IN(
+			<foreach collection="comArr" item="item" index="i" separator=",">
+					#{item}
+			 </foreach>)
+			<![CDATA[ 
+			AND A.SETTLEMENT_DATE < TRUNC(SYSDATE, 'MM')
+			]]>
+		
+	</select>
+	
+	<select id="countSnackList" parameterType="String" resultType="_int">
+
+		SELECT COUNT(*)
+		FROM SNACK_LIST
+		WHERE COM_CODE = #{comCode}
+		AND TRANS_STATUS = 'Y'
+		AND TRANS_DATE BETWEEN TRUNC(SYSDATE, 'MM') AND LAST_DAY(SYSDATE)
+		
+	</select>
+	
+	<select id="searchSnack" parameterType="SearchSnack"  resultMap="snackDListResultSet">
+	
+		SELECT A.SNACK_NO, A.SNACK_NAME, A.PURCHASE_PRICE, A.CATEGORY_NO, C.CATEGORY,  A.DETAIL_NO, D.DETAIL,
+			   A.RELEASE_PRICE, A.STOCK, B.CHANGE_NAME
+		FROM SNACK A
+		LEFT JOIN SNACK_ATTACHMENT B ON (A.SNACK_NO = B.SNACK_NO)
+		JOIN SNACK_CATEGORY C ON (A.CATEGORY_NO = C.CATEGORY_NO)
+		JOIN SNACK_CATEGORY_DETAIL D ON (A.DETAIL_NO = D.DETAIL_NO)
+		WHERE STATUS = 'Y' 
+	  	<if test="category != 0">
+			AND A.CATEGORY_NO = #{category}
+		</if>
+		<if test="subCategory != 0">
+			AND A.DETAIL_NO = #{subCategory}
+		</if>
+		<if test="search != ''">
+			AND A.SNACK_NAME LIKE '%'||#{search}||'%'
+		</if>
+		ORDER BY A.CATEGORY_NO ASC, A.DETAIL_NO ASC, A.SNACK_NAME ASC
+	</select>
+	
+	<select id="selectSnackListNo" parameterType="String" resultType="_int">
+
+		SELECT NVL(MAX(SNACK_LIST_NO), 0)
+		FROM SNACK_LIST
+		WHERE COM_CODE = #{comCode}
+		AND TRANS_STATUS = 'N'
+		
+	</select>
+
+	<select id="selectSnackDList" parameterType="_int" resultMap="snackDListResultSet">
+		SELECT A.SNACK_D_NO, A.SNACK_LIST_NO, A.AMOUNT, B.SNACK_NO, B.SNACK_NAME, B.RELEASE_PRICE, B.CATEGORY_NO, D.CATEGORY,  B.DETAIL_NO, E.DETAIL,
+			   B.STOCK, C.CHANGE_NAME
+		FROM SNACK_D_LIST A 
+		JOIN SNACK B ON (A.SNACK_NO = B.SNACK_NO)
+		LEFT JOIN SNACK_ATTACHMENT C ON (B.SNACK_NO = C.SNACK_NO)
+		JOIN SNACK_CATEGORY D ON (B.CATEGORY_NO = D.CATEGORY_NO)
+		JOIN SNACK_CATEGORY_DETAIL E ON (B.DETAIL_NO = E.DETAIL_NO)
+		WHERE A.SNACK_LIST_NO = #{listNo} 
+		ORDER BY B.CATEGORY_NO ASC, B.DETAIL_NO ASC, B.SNACK_NAME ASC
+	</select>
+	
+	<insert id="insertSanckList" parameterType="String">
+		INSERT INTO SNACK_LIST
+		VALUES(SNACK_LIST_SEQ.NEXTVAL, #{comCode}, DEFAULT, NULL, NULL, NULL)
+	</insert>
+
+	<select id="selectSnack" parameterType="SnackSubs" resultMap="snackDListResultSet">
+		SELECT ROWNUM, A.SNACK_NO, A.SNACK_NAME, A.RELEASE_PRICE, A.CATEGORY_NO, C.CATEGORY,  A.DETAIL_NO, D.DETAIL,
+			   A.STOCK, B.CHANGE_NAME
+		FROM SNACK A 
+		LEFT JOIN SNACK_ATTACHMENT B ON (A.SNACK_NO = B.SNACK_NO)
+		JOIN SNACK_CATEGORY C ON (A.CATEGORY_NO = C.CATEGORY_NO)
+		JOIN SNACK_CATEGORY_DETAIL D ON (A.DETAIL_NO = D.DETAIL_NO)
+		WHERE A.STATUS = 'Y'
+		AND A.DETAIL_NO IN (${snackCategory},${drinkCategory},${retortCategory})
+		AND (A.TASTE_NO IN (${preferTaste}) OR A.TASTE_NO IS NULL)
+		AND (A.AROMA_NO NOT IN (${dislikeFlavour}) OR A.AROMA_NO IS NULL)
+	</select>
+	
+	<update id="insertSnackDList" parameterType="java.util.List" >
+		INSERT INTO SNACK_D_LIST
+		SELECT SNACK_D_LIST_SEQ.NEXTVAL, S.*
+		FROM(
+			<foreach item="item" collection="list" separator="UNION ALL">
+				SELECT #{item.snackListNo}, #{item.snackNo}, #{item.amount}
+				FROM SYS.DUAL
+			</foreach>
+		)S
+	</update>
+	
+	<select id="selectTotalPrice" parameterType="_int" resultType="_int">
+		SELECT NVL(SUM(B.RELEASE_PRICE * A.AMOUNT), 0)
+		FROM SNACK_D_LIST A
+		JOIN SNACK B ON (A.SNACK_NO = B.SNACK_NO)
+		WHERE A.SNACK_LIST_NO = #{listNo}
+	</select>
+	
+	<delete id="deleteSnackDList" parameterType="_int">
+		DELETE FROM SNACK_D_LIST
+		WHERE SNACK_LIST_NO = #{listNo}
+	</delete>
+	
+	<delete id="deleteSnackDNo" parameterType="String">
+		DELETE FROM SNACK_D_LIST
+		WHERE SNACK_D_NO IN (${snackDNoCheck})
+	</delete>
+	
+	<insert id="addSanckDList" parameterType="SnackDList">
+		INSERT INTO SNACK_D_LIST
+		VALUES(SNACK_D_LIST_SEQ.NEXTVAL, #{snackListNo}, #{snackNo}, #{amount} )
+	</insert>
+	
+	<select id="checkSnackDup" parameterType="SnackDList" resultType="_int">
+		SELECT COUNT(*)
+		FROM SNACK_D_LIST
+		WHERE SNACK_LIST_NO = #{snackListNo}
+		AND SNACK_NO = #{snackNo}
+	</select>
+	
+	<update id="updateSnackAmount" parameterType="SnackDList">
+		UPDATE SNACK_D_LIST
+		SET AMOUNT = ${amount}
+		WHERE SNACK_D_NO = ${snackDNo}
+	</update>
+	
+	<select id="selectWishList" parameterType="ComListInfo" resultMap="WishListDtailResult">
+		 
+		SELECT A.WISHDETAIL_NO, A.WISH_NO, A.SNACK_NO, B.SNACK_NAME, 
+        	   B.CATEGORY_NO, C.CATEGORY, B.DETAIL_NO, D.DETAIL, A.COUNT, B.RELEASE_PRICE, B.STOCK, E.CHANGE_NAME
+		FROM WISHLIST_DETAIL A
+		JOIN SNACK B ON (A.SNACK_NO = B.SNACK_NO)
+		JOIN SNACK_CATEGORY C ON (B.CATEGORY_NO = C.CATEGORY_NO)
+		JOIN SNACK_CATEGORY_DETAIL D ON (B.DETAIL_NO = D.DETAIL_NO)
+		LEFT JOIN SNACK_ATTACHMENT E ON (B.SNACK_NO = E.SNACK_NO)
+		WHERE A.WISH_NO = (SELECT WISH_NO
+		                   FROM WISHLIST
+		                   WHERE STATUS = 'Y' 
+		                   AND COM_CODE = #{comCode}
+		                   AND WISH_END_DATE = #{wishEndDate})
+		 ORDER BY B.CATEGORY_NO, B.DETAIL_NO, B.SNACK_NAME
+	</select>
+	
+	<select id="selectOrderNo" resultType="_int">
+		SELECT TO_CHAR(SYSDATE, 'YYMM') || ORDER_NO_SEQ.NEXTVAL FROM DUAL
+	</select>
+	
+	<insert id="insertOrder" parameterType="ComListInfo">
+		INSERT INTO ORDERS(ORDER_NO, COM_CODE, ORDER_STATUS, BUDGET, TOTAL_PRICE, ORDER_DEADLINE, ORDER_DATE, DELIVERY_DATE, RELEASE_DATE, WISH_NO)
+		VALUES(#{orderNo}, #{comCode}, DEFAULT, #{budget}, NULL, #{orderDeadline}, NULL, #{deliveryDate}, NULL, 
+		      (SELECT WISH_NO
+		       FROM WISHLIST
+		       WHERE STATUS = 'Y' 
+		       AND COM_CODE = #{comCode}
+		       AND WISH_END_DATE = #{wishEndDate}))
+	</insert>
+	
+	<insert id="insertOrderDetail" parameterType="ComListInfo">
+		INSERT INTO ORDER_DETAIL (ORDER_D_NO, ORDER_NO, SNACK_NO, AMOUNT)
+		SELECT ORDER_D_NO_SEQ.NEXTVAL, #{orderNo} , SNACK_NO, AMOUNT
+		FROM SNACK_D_LIST
+		WHERE SNACK_LIST_NO = #{listNo}
+	</insert>
+	
+	<update id="updateTransStatus" parameterType="ComListInfo">
+		UPDATE SNACK_LIST
+		SET TRANS_STATUS = 'Y', TRANS_DATE = SYSDATE, TOTAL_PRICE = #{totalPrice}, BUDGET = #{budget}
+		WHERE SNACK_LIST_NO = #{listNo}
+	</update>
+	
+	<select id="selectSendingList" parameterType="java.util.HashMap" resultMap="snackListResultSet">
+		SELECT A.SNACK_LIST_NO, A.COM_CODE, B.COM_NAME, A.TRANS_STATUS, TO_CHAR(A.TRANS_DATE, 'yyyy-MM-dd') AS TRANS_DATE, A.BUDGET, A.TOTAL_PRICE, D.SNACK_NAME
+		FROM SNACK_LIST A
+		JOIN COMPANY B ON (A.COM_CODE = B.COM_CODE)
+		JOIN SNACK_D_LIST C ON (A.SNACK_LIST_NO = C.SNACK_LIST_NO)
+		JOIN SNACK D ON (C.SNACK_NO = D.SNACK_NO)
+		WHERE A.COM_CODE IN(
+			<foreach collection="comArr" item="item" separator=",">
+				#{item}
+			</foreach>)
+		AND A.TRANS_STATUS = 'Y'
+		AND (A.SNACK_LIST_NO, C.SNACK_NO) IN (SELECT A.SNACK_LIST_NO, MIN(B.SNACK_NO)
+												FROM SNACK_LIST A
+												JOIN SNACK_D_LIST B ON (A.SNACK_LIST_NO = B.SNACK_LIST_NO)
+										        GROUP BY A.SNACK_LIST_NO)
+		ORDER BY A.TRANS_DATE DESC, B.COM_NAME							   
+	</select>
+
+	<select id="selectSnackList" parameterType="_int" resultMap="snackListResultSet">
+		SELECT A.SNACK_LIST_NO, A.COM_CODE, B.COM_NAME, A.TRANS_STATUS, TO_CHAR(A.TRANS_DATE, 'yyyy-MM-dd') AS TRANS_DATE,
+		       A.BUDGET, A.TOTAL_PRICE
+		FROM SNACK_LIST A
+		JOIN COMPANY B ON (A.COM_CODE = B.COM_CODE)
+		WHERE SNACK_LIST_NO = #{snackListNo}
+	</select>
+	
+	<select id="searchSendingList" parameterType="SearchList" resultMap="snackListResultSet">
+	 	SELECT *
+	 	FROM
+	 	(
+		 	SELECT A.SNACK_LIST_NO, A.COM_CODE, B.COM_NAME, A.TRANS_STATUS, TO_CHAR(A.TRANS_DATE, 'yyyy-MM-dd') AS TRANS_DATE, D.SNACK_NO, D.SNACK_NAME, A.BUDGET, A.TOTAL_PRICE
+			FROM SNACK_LIST A
+			JOIN COMPANY B ON (A.COM_CODE = B.COM_CODE)
+			JOIN SNACK_D_LIST C ON (A.SNACK_LIST_NO = C.SNACK_LIST_NO)
+			JOIN SNACK D ON (C.SNACK_NO = D.SNACK_NO)
+			WHERE A.COM_CODE IN(
+				<foreach collection="comArr" item="item" separator=",">
+					#{item}
+				</foreach>)
+			AND A.TRANS_STATUS = 'Y'
+			<if test="category == 1">
+	 			AND A.SNACK_LIST_NO = #{search}
+		 	</if>
+		 	<if test="category == 2">
+		 		AND B.COM_NAME LIKE '%'|| #{search} ||'%'
+		 	</if>
+			<if test="category == 3">
+		 		AND A.SNACK_LIST_NO IN (SELECT A.SNACK_LIST_NO
+		 						        FROM SNACK_D_LIST A 
+								        JOIN SNACK B ON (A.SNACK_NO = B.SNACK_NO)
+								        WHERE B.SNACK_NAME LIKE '%'|| #{search} ||'%'
+		 								)
+		 	</if>
+		 	<if test="startDate != null">
+		 		<![CDATA[
+		 		AND A.TRANS_DATE >= #{startDate}
+		 		]]>
+		 	</if>
+		 	<if test="endDate != null">
+		 		<![CDATA[
+		 		AND A.TRANS_DATE < #{endDate}+1
+		 		]]>
+		 	</if>
+	 	)
+	 	WHERE (SNACK_LIST_NO, SNACK_NO) IN (SELECT A.SNACK_LIST_NO, MIN(B.SNACK_NO)
+												FROM SNACK_LIST A
+												JOIN SNACK_D_LIST B ON (A.SNACK_LIST_NO = B.SNACK_LIST_NO)
+										        GROUP BY A.SNACK_LIST_NO)
+		ORDER BY TRANS_DATE DESC, COM_NAME								        
+	</select>
+	
+	<select id="selectSearchListCount" parameterType="SearchList" resultType="_int">
+		SELECT COUNT(*)
+		FROM SNACK_LIST A
+		JOIN COMPANY B ON (A.COM_CODE = B.COM_CODE)
+		WHERE A.COM_CODE IN(
+		<foreach collection="comArr" item="item" separator=",">
+			#{item}
+		</foreach>
+		)
+		AND A.TRANS_STATUS = 'Y'
+		<if test="category == 1">
+			AND A.SNACK_LIST_NO = #{search}
+		</if>
+		<if test="category == 2">
+			AND B.COM_NAME LIKE '%'|| #{search} ||'%'
+		</if>
+		<if test="category == 3">
+			AND A.SNACK_LIST_NO IN (SELECT A.SNACK_LIST_NO
+									FROM SNACK_D_LIST A
+									JOIN SNACK B ON (A.SNACK_NO = B.SNACK_NO)
+									WHERE B.SNACK_NAME LIKE '%'|| #{search} ||'%'
+									)
+		</if>
+		<if test="startDate != null">
+			<![CDATA[
+				AND A.TRANS_DATE >= #{startDate}
+			]]>
+		</if>
+		<if test="endDate != null">
+			<![CDATA[
+				AND A.TRANS_DATE < #{endDate}+1
+			]]>
+		</if>
+		ORDER BY TRANS_DATE DESC, COM_NAME
+	</select>
+	
+	<select id="selectWish" parameterType="ComListInfo" resultMap="WishDetailResultSet">
+		SELECT A.SNACK_NO, B.SNACK_NAME, B.CATEGORY_NO, C.CATEGORY, B.DETAIL_NO, D.DETAIL, A.COUNT, B.RELEASE_PRICE, B.STOCK, E.CHANGE_NAME
+		FROM WISHLIST_DETAIL A
+		JOIN SNACK B ON (A.SNACK_NO = B.SNACK_NO)
+		JOIN SNACK_CATEGORY C ON (B.CATEGORY_NO = C.CATEGORY_NO)
+		JOIN SNACK_CATEGORY_DETAIL D ON (B.DETAIL_NO = D.DETAIL_NO)
+		LEFT JOIN SNACK_ATTACHMENT E ON (B.SNACK_NO = E.SNACK_NO)
+		WHERE A.WISH_NO = (SELECT WISH_NO
+		                   FROM WISHLIST
+		                   WHERE STATUS = 'Y' 
+		                   AND COM_CODE = #{comCode}
+		                   AND WISH_END_DATE = #{wishEndDate})
+	
+	</select>
+	
+	<delete id="cancelSnackList" parameterType="String">
+		DELETE FROM SNACK_LIST
+		WHERE SNACK_LIST_NO = (SELECT SNACK_LIST_NO
+							   FROM SNACK_LIST
+							   WHERE COM_CODE = #{comCode}
+							   AND TRANS_STATUS = 'N')
+	</delete>
+	
+	<select id="selectListCount" parameterType="java.util.HashMap" resultType="_int">
+		SELECT COUNT(*)
+		FROM SNACK_LIST
+		WHERE COM_CODE IN(
+			<foreach collection="comArr" item="item" separator=",">
+				#{item}
+			</foreach>)
+		AND TRANS_STATUS = 'Y'
+	</select>
+
+</mapper>

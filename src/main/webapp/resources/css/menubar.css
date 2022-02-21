@@ -1,0 +1,68 @@
+@charset "UTF-8";
+
+/*마우스 오버*/
+.dropdown:hover .dropdown-menu {
+    display: block;
+    margin-top: 0;
+}
+.navbar{
+    background-color: rgb(10, 23, 78);
+}
+ .dropdown , .nav-link , .dropdown-item , .logOut{
+    color: rgb(245, 208, 66);
+}
+ul>h2{
+    margin-top: -5px;
+}
+.nav-menu , .name , .logOut{
+    font-weight: bold;
+    font-size: 17px;
+}
+/*메뉴들 사이 여백설정*/
+.nav-link{
+    margin-left: 100px;
+}
+/*드롭메뉴 hover*/
+.dropdown-item:hover{
+    background-color: rgb(245, 208, 66);
+    color: black;
+    font-weight: bold;
+}
+.navbar-nav{
+    margin-left: 50px;
+}
+.dropdown-menu{
+    background-color:rgba(10, 23, 78, 0.60);
+}
+
+/*로그인 후 div*/
+.login-nav {
+    list-style: none;
+    margin-left: 200px;
+    padding-right: 10px;
+    margin-top: -5px;
+    float: left;
+}
+.name {
+    margin-top: 11px;
+    margin-right: 10px;
+}
+.logOut{
+    margin-top: 14px;
+}
+/*로그인 전 div*/
+.loginDiv{
+    margin-left: 200px;
+
+}
+.loginDiv>a{
+    color: rgb(245, 208, 66);
+    font-weight: bold;
+    font-size: 15px;
+}
+.loginDiv>a>label{
+    margin-top: 10px;
+    margin-left: 30px;
+}
+
+

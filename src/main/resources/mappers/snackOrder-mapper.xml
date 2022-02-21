@@ -1,0 +1,339 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper 
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="snackOrderMapper">
+
+	<resultMap type="Orders" id="ordersResultSet">
+		<id property="orderNo" column="ORDER_NO"/>
+		<result property="comCode" column="COM_CODE"/>
+		<result property="comName" column="COM_NAME"/>
+		<result property="orderStatus" column="ORDER_STATUS"/>
+		<result property="status" column="STATUS"/>
+		<result property="budget" column="BUDGET"/>
+		<result property="totalPrice" column="TOTAL_PRICE"/>
+		<result property="orderDeadline" column="ORDER_DEADLINE"/>
+		<result property="orderDate" column="ORDER_DATE"/>
+		<result property="deliveryDate" column="DELIVERY_DATE"/>
+		<result property="releaseDate" column="RELEASE_DATE"/>
+		<result property="wishNo" column="WISH_NO"/>
+	</resultMap>
+	
+	<resultMap type="OrderDetail" id="orderDetailResultSet">
+		<id property="orderDNo" column="ORDER_D_NO"/>
+		<result property="orderNo" column="ORDER_NO"/>
+		<result property="categoryNo" column="CATEGORY_NO"/>
+		<result property="categoryName" column="CATEGORY"/>
+		<result property="subCategoryNo" column="DETAIL_NO"/>
+		<result property="subCategoryName" column="DETAIL"/>
+		<result property="snackNo" column="SNACK_NO"/>
+		<result property="snackName" column="SNACK_NAME"/>
+		<result property="amount" column="AMOUNT"/>
+		<result property="releasePrice" column="RELEASE_PRICE"/>
+		<result property="stock" column="STOCK"/>
+		<result property="imageName" column="CHANGE_NAME"/>
+	</resultMap>
+	
+	<resultMap type="WishListDtail" id="WishDListResult">
+	 	<id property="wishDetailNo" column="WISHDETAIL_NO"/>
+		<result property="wishNo" column="WISH_NO"/>
+		<result property="categoryNo" column="CATEGORY_NO"/>
+		<result property="categoryName" column="CATEGORY"/>
+		<result property="subCategoryNo" column="DETAIL_NO"/>
+		<result property="subCategoryName" column="DETAIL"/>
+		<result property="snackNo" column="SNACK_NO"/>
+		<result property="snackName" column="SNACK_NAME"/>
+		<result property="count" column="COUNT"/>
+		<result property="releasePrice" column="RELEASE_PRICE"/>
+		<result property="stock" column="STOCK"/>
+		<result property="changeName" column="CHANGE_NAME"/>
+	</resultMap>
+
+	<select id="selectOrder" parameterType="String" resultMap="ordersResultSet">
+		SELECT A.ORDER_NO, A.COM_CODE, B.COM_NAME, A.ORDER_DEADLINE, A.DELIVERY_DATE, A.BUDGET, A.WISH_NO
+		FROM ORDERS A
+		LEFT JOIN COMPANY B ON (A.COM_CODE = B.COM_CODE)
+		WHERE A.COM_CODE = #{comCode}
+		AND ORDER_STATUS = 'N'
+	</select>
+	
+	<select id="selectOrderForNo" parameterType="_int" resultMap="ordersResultSet">
+		SELECT A.ORDER_NO, A.COM_CODE, B.COM_NAME, A.ORDER_DATE, A.DELIVERY_DATE, A.RELEASE_DATE, A.BUDGET, A.TOTAL_PRICE, A.ORDER_STATUS
+		FROM ORDERS A
+		LEFT JOIN COMPANY B ON (A.COM_CODE = B.COM_CODE)
+		WHERE A.ORDER_NO = #{orderNo}
+	</select>
+	
+	<select id="selectComOrderedList" parameterType="String" resultMap="ordersResultSet">
+			SELECT A.ORDER_NO, A.COM_CODE, B.COM_NAME, A.ORDER_DEADLINE, A.ORDER_DATE, A.DELIVERY_DATE, A.BUDGET, A.TOTAL_PRICE, A.ORDER_STATUS,
+			       CASE WHEN A.ORDER_STATUS = 'Y' THEN '주문 완료'
+	           			WHEN A.ORDER_STATUS = 'R' THEN '발송 완료'
+	            		WHEN A.ORDER_STATUS = 'C' THEN '주문 취소'
+	       		   END AS STATUS
+			FROM ORDERS A
+			LEFT JOIN COMPANY B ON (A.COM_CODE = B.COM_CODE)
+			WHERE A.COM_CODE = #{comCode}
+			AND ORDER_STATUS != 'N'
+			ORDER BY ORDER_DATE DESC
+	</select>
+	
+	<select id="selectHoOrderedList" parameterType="java.util.HashMap" resultMap="ordersResultSet">
+		SELECT A.ORDER_NO, A.COM_CODE, B.COM_NAME, A.ORDER_DEADLINE, A.ORDER_DATE, A.DELIVERY_DATE, A.BUDGET, A.TOTAL_PRICE, A.ORDER_STATUS,
+		       CASE WHEN A.ORDER_STATUS = 'Y' THEN '주문 완료'
+           			WHEN A.ORDER_STATUS = 'R' THEN '발송 완료'
+            		WHEN A.ORDER_STATUS = 'C' THEN '주문 취소'
+       		   END AS STATUS
+		FROM ORDERS A
+		LEFT JOIN COMPANY B ON (A.COM_CODE = B.COM_CODE)
+		WHERE A.COM_CODE IN(
+			<foreach collection="comArr" item="item" separator=",">
+				#{item}
+			</foreach>)
+		AND ORDER_STATUS != 'N'
+		ORDER BY A.ORDER_DATE DESC, B.COM_NAME, A.ORDER_NO DESC
+	</select>
+	
+	<select id="selectOrderDetail" parameterType="_int" resultMap="orderDetailResultSet">
+		SELECT A.ORDER_D_NO, A.ORDER_NO, A.AMOUNT, A.SNACK_NO, B.SNACK_NAME, B.RELEASE_PRICE, B.CATEGORY_NO, D.CATEGORY,  B.DETAIL_NO, E.DETAIL,
+			   B.STOCK, C.CHANGE_NAME
+		FROM ORDER_DETAIL A
+		JOIN SNACK B ON (A.SNACK_NO = B.SNACK_NO)
+		LEFT JOIN SNACK_ATTACHMENT C ON (B.SNACK_NO = C.SNACK_NO)
+		JOIN SNACK_CATEGORY D ON (B.CATEGORY_NO = D.CATEGORY_NO)
+		JOIN SNACK_CATEGORY_DETAIL E ON (B.DETAIL_NO = E.DETAIL_NO)
+		WHERE ORDER_NO = #{orderNo}
+		ORDER BY B.CATEGORY_NO ASC, B.DETAIL_NO ASC, B.SNACK_NAME ASC
+	</select>
+
+	<select id="selectTotalPrice" parameterType="_int" resultType="_int">
+		SELECT NVL(SUM(B.RELEASE_PRICE * A.AMOUNT), 0)
+		FROM ORDER_DETAIL A
+		JOIN SNACK B ON (A.SNACK_NO = B.SNACK_NO)
+		WHERE A.ORDER_NO = #{orderNo} 
+	</select>
+	
+	<select id="checkOrderSnackDup" parameterType="OrderDetail" resultType="_int">
+		SELECT COUNT(*)
+		FROM ORDER_DETAIL
+		WHERE ORDER_NO = #{orderNo}
+		AND SNACK_NO = #{snackNo}
+	</select>
+	
+	<insert id="addOrderDList" parameterType="OrderDetail">
+		INSERT INTO ORDER_DETAIL
+		VALUES(ORDER_D_NO_SEQ.NEXTVAL, #{orderNo} , #{snackNo} , #{amount})
+	</insert>
+	
+	<delete id="deleteOrderDNo" parameterType="String">
+		DELETE FROM ORDER_DETAIL
+		WHERE ORDER_D_NO IN (${snackDNoCheck})
+	</delete>
+	
+	<update id="updateOrderAmount" parameterType="OrderDetail">
+		UPDATE ORDER_DETAIL
+		SET AMOUNT = #{amount}
+		WHERE ORDER_D_NO = #{orderDNo}
+	</update>
+	
+	<select id="selecComtWishList" parameterType="_int" resultMap="WishDListResult">
+		SELECT A.WISHDETAIL_NO, A.WISH_NO, A.SNACK_NO, B.SNACK_NAME, 
+        	   B.CATEGORY_NO, C.CATEGORY, B.DETAIL_NO, D.DETAIL, A.COUNT, B.RELEASE_PRICE, B.STOCK, E.CHANGE_NAME
+		FROM WISHLIST_DETAIL A
+		JOIN SNACK B ON (A.SNACK_NO = B.SNACK_NO)
+		JOIN SNACK_CATEGORY C ON (B.CATEGORY_NO = C.CATEGORY_NO)
+		JOIN SNACK_CATEGORY_DETAIL D ON (B.DETAIL_NO = D.DETAIL_NO)
+		LEFT JOIN SNACK_ATTACHMENT E ON (B.SNACK_NO = E.SNACK_NO)
+		WHERE A.WISH_NO = #{wishNo}
+		ORDER BY B.CATEGORY_NO, B.DETAIL_NO, B.SNACK_NAME
+	</select>
+	
+	<select id="checkOrderStock" parameterType="_int" resultMap="orderDetailResultSet">
+		SELECT A.SNACK_NO, B.SNACK_NAME, B.STOCK
+		FROM ORDER_DETAIL A
+		JOIN SNACK B ON (A.SNACK_NO = B.SNACK_NO)
+		WHERE ORDER_NO = #{orderNo}
+		AND A.AMOUNT > B.STOCK
+	</select>
+	
+	<update id="updateSnackOrder" parameterType="_int">
+		UPDATE ORDERS
+		SET ORDER_DATE = SYSDATE, ORDER_STATUS = 'Y',
+		TOTAL_PRICE = (SELECT NVL(SUM(B.RELEASE_PRICE * A.AMOUNT), 0)
+						FROM ORDER_DETAIL A
+						JOIN SNACK B ON (A.SNACK_NO = B.SNACK_NO)
+						WHERE A.ORDER_NO = #{orderNo})	
+		WHERE ORDER_NO = #{orderNo}
+	</update>
+	
+	<update id="updateOrderRelease" parameterType="_int">
+		UPDATE ORDERS
+		SET RELEASE_DATE = SYSDATE, ORDER_STATUS = 'R'
+		WHERE ORDER_NO = #{orderNo}
+	</update>
+	
+	<update id="updateOrderStatus" parameterType="_int">
+		UPDATE ORDERS
+		SET ORDER_STATUS = 'C'
+		WHERE ORDER_NO = #{orderNo}
+	</update>
+
+	<insert id="insertRelease" parameterType="_int">
+		INSERT INTO RELEASE (RELEASE_NO, AMOUNT, REMARK, RELEASE_DATE, SNACK_NO, COM_CODE)
+		SELECT RELEASE_SEQ.NEXTVAL, AMOUNT, ORDER_NO, SYSDATE, SNACK_NO, 
+		       (SELECT COM_CODE FROM ORDERS WHERE ORDER_NO = #{orderNo})
+		FROM ORDER_DETAIL
+		WHERE ORDER_NO = #{orderNo}
+	</insert>
+	
+	<insert id="insertNewOrder" parameterType="java.util.HashMap">
+		INSERT INTO ORDERS(ORDER_NO, COM_CODE, ORDER_STATUS, BUDGET, ORDER_DEADLINE, DELIVERY_DATE, WISH_NO)
+		SELECT #{newOrderNo}, COM_CODE, 'N', BUDGET, ORDER_DEADLINE, DELIVERY_DATE, WISH_NO
+		FROM ORDERS
+		WHERE ORDER_NO = #{orderNo} 
+	</insert>
+
+	<insert id="insertNewOrderDetail" parameterType="java.util.HashMap">
+		INSERT INTO ORDER_DETAIL (ORDER_D_NO, ORDER_NO, SNACK_NO, AMOUNT)
+		SELECT ORDER_D_NO_SEQ.NEXTVAL, #{newOrderNo} , SNACK_NO, AMOUNT
+		FROM ORDER_DETAIL
+		WHERE ORDER_NO = #{orderNo}
+	</insert>
+	
+	<select id="selectComSearchOrder" parameterType="SearchList" resultMap="ordersResultSet">
+		SELECT A.ORDER_NO, A.COM_CODE, B.COM_NAME, A.ORDER_DEADLINE, A.ORDER_DATE, A.DELIVERY_DATE, A.BUDGET, A.TOTAL_PRICE, A.ORDER_STATUS,
+		       CASE WHEN A.ORDER_STATUS = 'Y' THEN '주문 완료'
+           			WHEN A.ORDER_STATUS = 'R' THEN '발송 완료'
+            		WHEN A.ORDER_STATUS = 'C' THEN '주문 취소'
+       		   END AS STATUS
+		FROM ORDERS A
+		LEFT JOIN COMPANY B ON (A.COM_CODE = B.COM_CODE)
+		WHERE A.COM_CODE = #{comCode}
+		AND ORDER_STATUS != 'N'
+		<if test="startDate != null">
+		 	<![CDATA[
+		 		AND A.ORDER_DATE >= #{startDate}
+		 	]]>
+		</if>
+		<if test="endDate != null">
+		 	<![CDATA[
+		 		AND A.ORDER_DATE < #{endDate}+1
+		 	]]>
+		 </if>
+		 <if test="category != 2">
+			ORDER BY A.ORDER_DATE DESC
+		</if>
+		<if test="category == 2">
+			ORDER BY A.TOTAL_PRICE DESC
+		</if>
+	</select>
+	
+	<select id="selectListCountForComSearch" parameterType="SearchList" resultType="_int">
+		SELECT COUNT(*)
+		FROM ORDERS A
+		LEFT JOIN COMPANY B ON (A.COM_CODE = B.COM_CODE)
+		WHERE A.COM_CODE = #{comCode}
+		AND ORDER_STATUS != 'N'
+		<if test="startDate != null">
+		 	<![CDATA[
+		 		AND A.ORDER_DATE >= #{startDate}
+		 	]]>
+		</if>
+		<if test="endDate != null">
+		 	<![CDATA[
+		 		AND A.ORDER_DATE < #{endDate}+1
+		 	]]>
+		 </if>
+		 <if test="category != 2">
+			ORDER BY A.ORDER_DATE DESC
+		</if>
+		<if test="category == 2">
+			ORDER BY A.TOTAL_PRICE DESC
+		</if>
+	</select>
+	
+	
+	<select id="selectHoSearchOrder" parameterType="SearchList" resultMap="ordersResultSet">
+		SELECT A.ORDER_NO, A.COM_CODE, B.COM_NAME, A.ORDER_DEADLINE, A.ORDER_DATE, A.DELIVERY_DATE, A.BUDGET, A.TOTAL_PRICE, A.ORDER_STATUS,
+		       CASE WHEN A.ORDER_STATUS = 'Y' THEN '주문 완료'
+           			WHEN A.ORDER_STATUS = 'R' THEN '발송 완료'
+            		WHEN A.ORDER_STATUS = 'C' THEN '주문 취소'
+       		   END AS STATUS
+		FROM ORDERS A
+		LEFT JOIN COMPANY B ON (A.COM_CODE = B.COM_CODE)
+		WHERE A.COM_CODE IN(
+			<foreach collection="comArr" item="item" separator=",">
+				#{item}
+			</foreach>)
+		AND ORDER_STATUS != 'N'
+		<if test="startDate != null">
+		 	<![CDATA[
+		 		AND A.ORDER_DATE >= #{startDate}
+		 	]]>
+		</if>
+		<if test="endDate != null">
+		 	<![CDATA[
+		 		AND A.ORDER_DATE < #{endDate}+1
+		 	]]>
+		 </if>
+		 <if test="category == 1">
+	 		AND A.ORDER_NO = #{search}
+		 </if>
+		 <if test="category == 2">
+		 	AND B.COM_NAME LIKE '%'|| #{search} ||'%'
+		 </if>
+		ORDER BY A.ORDER_DATE DESC, B.COM_NAME
+	</select>
+	
+	<select id="selectListCountForHoSearch" parameterType="SearchList" resultType="_int">
+		SELECT COUNT(*)
+		FROM ORDERS A
+		LEFT JOIN COMPANY B ON (A.COM_CODE = B.COM_CODE)
+		WHERE A.COM_CODE IN(
+			<foreach collection="comArr" item="item" separator=",">
+				#{item}
+			</foreach>)
+		AND ORDER_STATUS != 'N'
+		<if test="startDate != null">
+		 	<![CDATA[
+		 		AND A.ORDER_DATE >= #{startDate}
+		 	]]>
+		</if>
+		<if test="endDate != null">
+		 	<![CDATA[
+		 		AND A.ORDER_DATE < #{endDate}+1
+		 	]]>
+		 </if>
+		 <if test="category == 1">
+	 		AND A.ORDER_NO = #{search}
+		 </if>
+		 <if test="category == 2">
+		 	AND B.COM_NAME LIKE '%'|| #{search} ||'%'
+		 </if>
+	</select>	
+	
+	<delete id="cancelOrders" parameterType="String">
+		DELETE FROM ORDERS
+		WHERE ORDER_NO = (SELECT ORDER_NO
+		                  FROM ORDERS
+		                  WHERE COM_CODE = #{comCode}
+		                  AND ORDER_STATUS = 'N')
+	</delete>
+	
+	<select id="selectListCountForString" parameterType="String" resultType="_int">
+		SELECT COUNT(*)
+		FROM ORDERS
+		WHERE COM_CODE = #{comCode}
+		AND ORDER_STATUS != 'N'
+	</select>
+	
+	<select id="selectListCountForMap" parameterType="java.util.HashMap" resultType="_int">
+		SELECT COUNT(*)
+		FROM ORDERS
+		WHERE COM_CODE IN(
+			<foreach collection="comArr" item="item" separator=",">
+				#{item}
+			</foreach>)
+		AND ORDER_STATUS != 'N'
+	</select>
+
+</mapper>

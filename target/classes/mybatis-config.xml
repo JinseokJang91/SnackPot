@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd" >
+<configuration>
+
+	<settings><!-- value 에 NULL 은 무조건 대문자로  -->
+		<setting name="jdbcTypeForNull" value="NULL"/>
+	</settings>
+
+	<typeAliases>
+		<!-- birthday -->
+		<typeAlias type="com.kh.spring.birthday.subscribe.model.vo.Birthday" alias="Birthday"/>
+		<typeAlias type="com.kh.spring.birthday.sendingStatus.model.vo.SendingStatus" alias="SendingStatus"/>
+		<typeAlias type="com.kh.spring.birthday.sendList.model.vo.SendList" alias="SendList"/>
+		<typeAlias type="com.kh.spring.birthday.giftList.model.vo.GiftList" alias="GiftList"/>
+		<typeAlias type="com.kh.spring.birthday_HO.sendingStatus_HO.model.vo.HO_SendingStatus" alias="HO_SendingStatus"/>
+		<typeAlias type="com.kh.spring.birthday_HO.sendList_HO.model.vo.HO_SendList" alias="HO_SendList"/>
+		<typeAlias type="com.kh.spring.birthday_HO.giftList_HO.model.vo.HO_GiftList" alias="HO_GiftList"/>
+		<typeAlias type="com.kh.spring.birthday_HO.giftList_HO.model.vo.GiftAttachment" alias="GiftAttachment"/>
+		<typeAlias type="com.kh.spring.birthday.giftList.model.vo.GiftFolder" alias="GiftFolder"/>
+		<typeAlias type="com.kh.spring.birthday.giftList.model.vo.GiftFolderDetail" alias="GiftFolderDetail"/>
+		
+		<!-- company -->
+		<typeAlias type="com.kh.spring.companyMember.model.vo.CompanyMember" alias="CompanyMember"/>
+		<typeAlias type="com.kh.spring.company.model.vo.Company" alias="Company"/>
+		<typeAlias type="com.kh.spring.companyEmp.model.vo.CompanyEmp" alias="CompanyEmp"/>
+		
+		<!-- product -->
+		<typeAlias type="com.kh.spring.product.model.vo.Product" alias="Product"/>
+		<typeAlias type="com.kh.spring.product.model.vo.SnackSubCategory" alias="SnackSubCategory"/>
+		<typeAlias type="com.kh.spring.product.model.vo.Aroma" alias="Aroma"/>
+		<typeAlias type="com.kh.spring.product.model.vo.Taste" alias="Taste"/>
+		<typeAlias type="com.kh.spring.product.model.vo.ProductAttachment" alias="ProductAttachment"/>
+		<typeAlias type="com.kh.spring.product.arrival.model.vo.Arrival" alias="Arrival"/>
+		<typeAlias type="com.kh.spring.product.release.model.vo.Release" alias="Release"/>
+		<typeAlias type="com.kh.spring.product.model.vo.WishListDtail" alias="WishListDtail"/>
+		<typeAlias type="com.kh.spring.product.model.vo.Snack" alias="Snack"/>
+		
+		<!-- snack -->
+		<typeAlias type="com.kh.spring.snack.snackSubs.model.vo.SnackSubs" alias="SnackSubs"/>
+		<typeAlias type="com.kh.spring.snack.snackList.model.vo.SnackList" alias="SnackList"/>
+		<typeAlias type="com.kh.spring.snack.snackList.model.vo.SnackDList" alias="SnackDList"/>
+		<typeAlias type="com.kh.spring.snack.snackList.model.vo.SearchSnack" alias="SearchSnack"/>
+		<typeAlias type="com.kh.spring.snack.snackList.model.vo.SearchList" alias="SearchList"/>
+		<typeAlias type="com.kh.spring.snack.snackOrder.model.vo.Orders" alias="Orders"/>
+		<typeAlias type="com.kh.spring.snack.snackOrder.model.vo.OrderDetail" alias="OrderDetail"/>
+		<typeAlias type="com.kh.spring.snack.snackList.model.vo.ComListInfo" alias="ComListInfo"/>
+		<typeAlias type="com.kh.spring.snackpotEmp.model.vo.SnackpotEmp" alias="SnackpotEmp"/>
+		
+		<!-- qna -->
+		<typeAlias type="com.kh.spring.qna.model.vo.Qna" alias="Qna"/>
+		<typeAlias type="com.kh.spring.qna.model.vo.QnaAttachment" alias="QnaAttachment"/>
+		
+		<!-- community -->
+		<typeAlias type="com.kh.spring.community.model.vo.Community" alias="Community"/>
+		<typeAlias type="com.kh.spring.community.model.vo.Reply" alias="Reply"/>
+		<typeAlias type="com.kh.spring.community.model.vo.ComtyAttachment" alias="ComtyAttachment"/>
+		
+		<!-- chart -->
+		<typeAlias type="com.kh.spring.product.model.vo.Chart" alias="Chart"/>
+		
+	</typeAliases>
+
+	<mappers>
+		<mapper resource="/mappers/product-mapper.xml"/> 
+		<mapper resource="/mappers/companyMember-mapper.xml"/>
+		<mapper resource="/mappers/birthday-mapper.xml"/>
+		<mapper resource="/mappers/birthday-mapper_HO.xml"/>
+		<mapper resource="/mappers/snackCategory-mapper.xml"/>
+		<mapper resource="/mappers/snackSubs-mapper.xml"/>
+		<mapper resource="/mappers/company-mapper.xml"/>
+		<mapper resource="/mappers/inven-mapper.xml"/>
+		<mapper resource="/mappers/snackList-mapper.xml"/>
+		<mapper resource="/mappers/snackpotEmp-mapper.xml"/>
+		<mapper resource="/mappers/qna-mapper.xml"/>
+		<mapper resource="/mappers/snackOrder-mapper.xml"/>
+		<mapper resource="/mappers/cmnt-mapper.xml"/>
+		<mapper resource="/mappers/companyEmp-mapper.xml"/>
+	</mappers>
+
+
+</configuration>

@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper 
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="qnaMapper">
+
+	<resultMap id="qnaResultSet" type="Qna">
+		<id column="q_no" property="qNo" />
+		<result column="writer" property="writer" />
+		<result column="q_title" property="qTitle" />
+		<result column="q_content" property="qContent" />
+		<result column="create_date" property="createDate" />
+		<result column="a_title" property="aTitle" />
+		<result column="a_content" property="aContent" />
+		<result column="a_date" property="aDate" />
+		<result column="status" property="status" />
+		<result column="change_name" property="changeName" />
+		<result column="MEM_NAME" property="name" />
+	</resultMap>
+
+
+	<select id="selectListCount" resultType="_int">
+
+		SELECT COUNT(*)
+		FROM QNA
+		WHERE STATUS = 'Y'
+
+
+	</select>
+
+	<select id="selectList" resultMap="qnaResultSet">
+
+		SELECT
+		A.Q_NO,
+		A.WRITER,
+		A.Q_TITLE,
+		A.Q_CONTENT,
+		A.CREATE_DATE,
+		A.A_TITLE,
+		A.A_CONTENT,
+		A.A_DATE,
+		A.CHANGE_NAME,
+		A.STATUS,
+		B.MEM_NAME
+		FROM QNA A
+		JOIN COMPANY_MEMBER B
+		ON A.WRITER = B.MEM_ID
+		WHERE STATUS = 'Y'
+		ORDER BY Q_NO DESC
+
+
+	</select>
+
+	<insert id="insertQna" parameterType="Qna">
+
+
+		INSERT INTO QNA
+		(Q_NO,
+		WRITER, Q_TITLE, Q_CONTENT, CREATE_DATE, CHANGE_NAME, STATUS)
+		VALUES
+		(QNA_SEQ.NEXTVAL, '${writer}',
+		'${qTitle}','${qContent}',sysdate,'${changeName}', 'Y'
+		)
+
+	</insert>
+
+	<insert id="insertQnaAttachment">
+		INSERT INTO QNA_ATTACHMENT
+		VALUES
+		(QNAATTACH_SEQ.NEXTVAL, '${originName}', '${changeName}','${filePath}'
+		)
+
+	</insert>
+
+	<select id="detailQna" resultMap="qnaResultSet">
+
+		SELECT
+		A.Q_NO,
+		A.WRITER,
+		A.Q_TITLE,
+		A.Q_CONTENT,
+		A.CREATE_DATE,
+		A.A_TITLE,
+		A.A_CONTENT,
+		A.A_DATE,
+		A.CHANGE_NAME,
+		B.MEM_NAME
+		FROM QNA A
+		JOIN COMPANY_MEMBER B
+		ON A.WRITER = B.MEM_ID
+		WHERE Q_NO = ${qno}
+		AND STATUS = 'Y'
+
+
+	</select>
+
+	<update id="deleteQna" parameterType="_int">
+
+		UPDATE QNA
+		SET
+		STATUS = 'N'
+		WHERE
+		Q_NO = ${qno}
+
+	</update>
+
+
+	<update id="updateQna">
+
+		UPDATE QNA
+		SET
+		Q_TITLE= '${qTitle}',
+		Q_CONTENT='${qContent}',
+		CHANGE_NAME = '${changeName}'
+		WHERE
+		Q_NO = ${qNo}
+
+	</update>
+
+	<update id="answerInsert">
+
+		UPDATE QNA
+		SET
+		A_TITLE = '${aTitle}',
+		A_CONTENT = '${aContent}'
+		WHERE
+		Q_NO = ${qNo}
+
+	</update>
+
+
+</mapper>

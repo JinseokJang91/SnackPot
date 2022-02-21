@@ -1,0 +1,154 @@
+@charset "UTF-8";
+
+/*본문 공통*/
+
+/*본사 화면 본문*/
+.content {
+	height: 100vh;
+	padding: 50px 0px;
+	margin-left: auto;
+	margin-right: auto;
+	overflow-y: auto;
+}
+.content::-webkit-scrollbar {
+    display: none;
+}
+
+/*구독사 화면 본문*/
+.com-content {
+	margin: auto;
+	margin-top: 30px;
+	margin-bottom: 50px;
+}
+
+.company-name {
+	background: rgb(245, 208, 66);
+	padding: 10px 15px;
+	border-radius: 0.25rem;
+	text-align: center;
+	font-weight: 500;
+}
+
+.btn.commBtn {
+	float: right;
+	margin-left: 5px;
+	margin-bottom: 5px;
+	background-color: rgb(10, 23, 78);
+	color : rgb(245, 208, 66);
+}
+
+.btn.commBtn:hover{
+	color : rgb(245, 208, 66);
+	background-color: rgb(69, 76, 110);
+}
+
+.btn.commBtn:disabled{
+	color : rgb(245, 208, 66);
+	background-color: rgb(69, 76, 110);
+}
+
+.image {
+	width: 50px;
+	height: 50px;
+}
+
+.company{
+	background: rgb(255, 251, 232);
+	padding: 20px;
+}
+
+.com-name{
+	font-weight: 500px;
+	font-size: 23px;
+}
+
+.company span{
+	margin-right: 10px;
+	margin-bottom: 5px;
+	display: inline-block;
+}
+
+/*간식 리스트 검색 */
+.search-list {
+	max-height: 300px;
+	padding: 20px;
+	background: rgb(255, 251, 232);
+	overflow-y: auto;
+}
+.search-list::-webkit-scrollbar {
+    display: none;
+}
+
+.search-sub {
+	margin-bottom: 10px;
+	padding: 0px;
+}
+
+.search-table {
+	background: white;
+	margin: auto;
+}
+
+.btn.yellowBtn{
+	background-color: rgb(245, 208, 66);
+}
+
+.btn.addBtn{
+	background-color: rgb(10, 23, 78);
+	color : white;
+}
+
+.btn.addBtn:hover{
+	color : white;
+	background-color: rgb(69, 76, 110);
+}
+
+.amount, .searchAmount {
+	width: 50px;
+}
+
+/*내역 검색*/
+.search{
+	margin: 15px 0px;
+}
+
+.search span{
+	padding: 5px;
+}
+
+/*구독페이지*/
+#subsEnroll  label {
+	min-width: 100px;
+}
+
+#category-menu {
+	padding: 0px;
+}
+
+.category-sub {
+	margin-bottom: 0.8rem;
+}
+
+#delivery p, #settlement p, #snack-budget p {
+	width: 50px;
+	min-width: 50px;
+	margin: auto;
+}
+
+#ratio p {
+	margin: auto;
+}
+
+/*페이징바*/
+ #pagingArea{
+ 	width: fit-content;
+ 	float: none;
+ 	margin: 0 auto;
+}
+
+/*리스트 발송 스케줄 */
+.month {
+	background: rgb(245, 208, 66);
+	padding: 10px 15px;
+	border-radius: 0.25rem;
+}

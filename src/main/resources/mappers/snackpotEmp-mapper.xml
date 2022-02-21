@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper 
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="snackpotEmpMapper">
+
+	<resultMap type="SnackpotEmp" id="snackpotEmpResultSet">
+		<id property="sempNum" column="SEMP_NUM"/>
+		<result property="sempComCode" column="SEMP_COMCODE"/>
+		<result property="sempPw" column="SEMP_PW"/>
+		<result property="sempName" column="SEMP_NAME"/>
+		<result property="sempDept" column="SEMP_DEPT"/>
+		<result property="sempJob" column="SEMP_JOB"/>
+		<result property="sempEmail" column="SEMP_EMAIL"/>
+		<result property="sempStatus" column="SEMP_STATUS"/>
+	</resultMap>
+	
+	<select id="loginEmp" parameterType="SnackpotEmp" resultMap="snackpotEmpResultSet">
+		SELECT * FROM SNACKPOT_EMP
+		WHERE SEMP_NUM=#{sempNum} AND SEMP_STATUS='Y'	
+	</select>
+	
+	<select id="selectEmpList" resultMap="snackpotEmpResultSet">
+		SELECT * FROM SNACKPOT_EMP
+		WHERE SEMP_NAME NOT IN ('관리자')
+		AND SEMP_STATUS='Y'
+	</select>
+	
+	<insert id="insertEmp" parameterType="SnackpotEmp">
+		INSERT INTO SNACKPOT_EMP
+		VALUES(#{sempNum}, DEFAULT, #{sempPw}, #{sempName}, #{sempDept}, #{sempJob}, #{sempEmail}, #{sempStatus})
+	</insert>
+	
+	<select id="checkNum" parameterType="string" resultType="_int">
+		SELECT COUNT (*)
+		FROM SNACKPOT_EMP
+		WHERE SEMP_NUM=#{sempNum}
+	</select>
+	
+	<select id="selectEmp" parameterType="_int" resultMap="snackpotEmpResultSet">
+		SELECT * FROM SNACKPOT_EMP
+		WHERE SEMP_NUM=#{sempNum} 	
+	</select>
+	
+	<update id="updateEmp" parameterType="SnackpotEmp">
+		UPDATE SNACKPOT_EMP
+		SET SEMP_NAME=#{sempName}, SEMP_DEPT=#{sempDept}, SEMP_JOB=#{sempJob}, SEMP_EMAIL=#{sempEmail}
+		WHERE SEMP_NUM=#{sempNum}
+	</update>
+	
+	<update id="deleteEmp" parameterType="string">
+		UPDATE SNACKPOT_EMP
+		SET SEMP_STATUS='N'
+		WHERE SEMP_NUM=#{sempNum}
+	</update>
+	
+	<select id="searchSempName" parameterType="string" resultType="string">
+		SELECT SEMP_NAME
+		FROM SNACKPOT_EMP
+		WHERE SEMP_NUM=#{sempNum} 	
+	</select>
+	
+	<update id="updateCompany" parameterType="hashMap">
+		UPDATE SNACKPOT_EMP
+		SET SEMP_COMCODE=#{comCode}
+		WHERE SEMP_NUM=#{sempNum}
+	</update>
+	
+	<update id="updatePw" parameterType="SnackpotEmp">
+		UPDATE SNACKPOT_EMP
+		SET SEMP_PW=#{sempPw}
+		WHERE SEMP_NUM=#{sempNum}
+	</update>
+	
+	<select id="selectComCodeCheck" parameterType="string" resultMap="snackpotEmpResultSet">
+		SELECT *
+		FROM SNACKPOT_EMP
+		WHERE SEMP_COMCODE LIKE #{comCode}
+	</select>
+	
+	<update id="deleteSempComCode" parameterType="SnackpotEmp">
+		UPDATE SNACKPOT_EMP
+		SET SEMP_COMCODE=#{sempComCode}
+		WHERE SEMP_NUM=#{sempNum}
+	</update>
+	
+	<select id="findPw" parameterType="hashMap" resultType="_int">
+		SELECT COUNT (*)
+		FROM SNACKPOT_EMP
+		WHERE SEMP_NUM=#{sempNum}
+		AND SEMP_NAME=#{sempName}
+		AND SEMP_EMAIL=#{sempEmail}
+	</select>
+	
+</mapper>

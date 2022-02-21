@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper 
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+ <mapper namespace="cmntMapper">
+	<resultMap type="Community" id="communityResultSet">
+	 	<id property="communityNo" column="COMMUNITY_NO"/>
+		<result property="content" column="CONTENT"/>
+		<result property="views" column="VIEWS"/>
+		<result property="recommend" column="RECOMMEND"/>
+		<result property="n_recommend" column="N_RECOMMEND"/>
+		<result property="writerDate" column="WRITER_DATE"/>
+		<result property="communityStatus" column="COMMUNITY_STATUS"/>
+		<result property="writer" column="WRITER"/>
+		<result property="title" column="TITLE"/>
+		<result property="comCode" column="COM_CODE" />
+		<result property="changeName" column="CHANGE_NAME"/>
+		<result property="originName" column="ORIGIN_NAME"/>	
+		<result property="reCount" column="RE_COUNT"/>		
+	</resultMap>
+
+	<resultMap type="ComtyAttachment" id="ComtyAttachmentResultSet">
+	 	<id property="fileNo" column="FILE_NO"/>
+		<result property="originName" column="ORIGIN_NAME"/>
+		<result property="changeName" column="CHANGE_NAME"/>
+		<result property="filePath" column="FILE_PATH"/>
+		<result property="communityNo" column="COMMUNITY_NO"/>
+	</resultMap> 	
+
+	<resultMap type="Reply" id="ReplyResultSet">
+	 	<id property="reNo" column="RE_NO"/>
+		<result property="communityNo" column="COMMUNITY_NO"/>
+		<result property="reGroup" column="RE_GROUP"/>
+		<result property="reGroups" column="RE_GROUPS"/>
+		<result property="reGroupDept" column="RE_GROUPDEPT"/>
+		<result property="reWriter" column="RE_WRITER"/>
+		<result property="reContent" column="RE_CONTENT"/>
+		<result property="reDate" column="RE_WRITERDATE"/>
+	</resultMap> 	
+	
+<select id="CountComCode" resultType="_int">
+	SELECT COUNT(COM_CODE)
+	FROM COMMUNITY
+	WHERE COM_CODE = #{comCode}
+</select>	
+		
+<select id="selectListCount" resultType="_int">
+	SELECT COUNT(*)
+	FROM COMMUNITY
+	WHERE COMMUNITY_STATUS = 'Y'
+    AND COM_CODE= #{comCode}
+</select>
+
+<select id="selectWriterListCount" resultType="_int">
+	SELECT COUNT(*)
+	FROM COMMUNITY
+	WHERE COMMUNITY_STATUS = 'Y'
+    AND WRITER= #{writer}
+    AND COM_CODE =#{comCode}
+</select>
+
+
+<select id="selectList" resultMap="communityResultSet">
+    SELECT A.COMMUNITY_NO , A.CONTENT, A.VIEWS, A.RECOMMEND , A.N_RECOMMEND , A.WRITER_DATE , A.TITLE , A.COM_CODE,
+       	   A.WRITER , B.CHANGE_NAME ,B.ORIGIN_NAME,
+       	    (
+            SELECT COUNT(*)
+            FROM REPLY C
+            WHERE C.COMMUNITY_NO = A.COMMUNITY_NO
+            )AS "RE_COUNT"
+	FROM COMMUNITY A 
+	LEFT OUTER JOIN COMTY_ATTACHMENT B ON (A.COMMUNITY_NO = B.COMMUNITY_NO)
+	WHERE A.COMMUNITY_STATUS='Y'
+	AND A.COM_CODE = #{comCode}
+	ORDER BY A.COMMUNITY_NO DESC
+</select>
+
+<select id="selectTopList" resultMap="communityResultSet">
+		<![CDATA[
+		SELECT *
+		FROM(SELECT *
+		 FROM COMMUNITY
+		WHERE COMMUNITY_STATUS ='Y'
+		AND COM_CODE = #{comCode}
+		ORDER BY RECOMMEND DESC
+		)
+		WHERE ROWNUM <=3
+		]]>
+</select>
+
+<select id="selectMyWriter" resultMap="communityResultSet">
+	SELECT A.COMMUNITY_NO , A.CONTENT, A.VIEWS, A.RECOMMEND , A.N_RECOMMEND , A.WRITER_DATE , A.TITLE , A.COM_CODE,
+       	   A.WRITER , B.CHANGE_NAME ,B.ORIGIN_NAME,   
+       	   (
+            SELECT COUNT(*)
+            FROM REPLY C
+            WHERE C.COMMUNITY_NO = A.COMMUNITY_NO
+            )AS "RE_COUNT"
+	FROM COMMUNITY A 
+	LEFT OUTER JOIN COMTY_ATTACHMENT B ON (A.COMMUNITY_NO = B.COMMUNITY_NO)
+	WHERE A.COMMUNITY_STATUS='Y'
+	AND A.WRITER = #{writer}
+	AND A.COM_CODE = #{comCode}
+	ORDER BY A.COMMUNITY_NO DESC
+</select>
+
+
+<select id="selectSearchCmnt" resultMap="communityResultSet">
+	SELECT A.COMMUNITY_NO , A.CONTENT, A.VIEWS, A.RECOMMEND , A.N_RECOMMEND , A.WRITER_DATE , A.TITLE , A.COM_CODE,
+       	   A.WRITER , B.CHANGE_NAME ,B.ORIGIN_NAME
+	FROM COMMUNITY A 
+	LEFT OUTER JOIN COMTY_ATTACHMENT B ON (A.COMMUNITY_NO = B.COMMUNITY_NO)
+	<trim prefix="WHERE" prefixOverrides="AND|OR">
+		<if test="title !=null">
+			AND A.TITLE LIKE '%' || #{title} || '%'
+		</if>
+		</trim>
+		AND A.COMMUNITY_STATUS='Y'
+		AND A.COM_CODE = #{comCode}
+		ORDER BY A.COMMUNITY_NO DESC
+</select>
+
+<insert id="insertCommunity" parameterType="Community">
+	INSERT INTO COMMUNITY       
+	VALUES (CMNT_SEQ.NEXTVAL , #{writer} , #{title} , #{content} , 0 , 0 , 0 , SYSDATE , 'Y' ,  #{comCode})
+</insert>
+
+<select id="selectCmntNo" resultType="_int">
+	SELECT MAX(COMMUNITY_NO)
+	FROM COMMUNITY
+	WHERE WRITER = #{memId}
+</select>
+
+<insert id="insertCommunityAttachment" parameterType="ComtyAttachment">
+	INSERT INTO COMTY_ATTACHMENT
+	VALUES (CMNTATT_SEQ.NEXTVAL , #{originName} , #{changeName} , #{filePath} , #{communityNo})
+</insert>
+
+
+<select id="selectDetailCmnt" parameterType="_int" resultMap="communityResultSet">
+	SELECT A.COMMUNITY_NO , A.CONTENT, A.VIEWS, A.RECOMMEND , A.N_RECOMMEND , A.WRITER_DATE , A.TITLE , A.COM_CODE,
+		 A.WRITER , B.CHANGE_NAME ,B.ORIGIN_NAME
+	FROM COMMUNITY A
+	LEFT OUTER JOIN COMTY_ATTACHMENT B ON (A.COMMUNITY_NO = B.COMMUNITY_NO)
+	WHERE A.COMMUNITY_NO = #{cno}
+	AND A.COMMUNITY_STATUS = 'Y'
+</select>
+
+<update id="updateCmnt" parameterType="Community">
+	UPDATE COMMUNITY
+	SET CONTENT=#{content} , TITLE=#{title} , WRITER_DATE=SYSDATE
+	WHERE COMMUNITY_NO= #{communityNo}
+</update>
+
+<delete id="deleteCmntAttachment" parameterType="ComtyAttachment">
+	DELETE FROM COMTY_ATTACHMENT
+	WHERE COMMUNITY_NO =#{communityNo}
+</delete>
+
+<update id="updateAttachment" parameterType="ComtyAttachment">
+	UPDATE COMTY_ATTACHMENT
+	SET ORIGIN_NAME =#{originName}, CHANGE_NAME=#{changeName}
+	WHERE COMMUNITY_NO =#{communityNo}
+</update>
+
+<update id="deleteCmnt" parameterType="Community">
+	UPDATE COMMUNITY
+	SET COMMUNITY_STATUS='N'
+	WHERE COMMUNITY_NO =#{communityNo}
+</update>
+
+<update id="updateViews">
+	UPDATE COMMUNITY SET VIEWS = VIEWS +1 
+	WHERE COMMUNITY_NO = #{cno}
+</update>
+
+<update id="updateRecommend">
+	UPDATE COMMUNITY SET RECOMMEND = RECOMMEND +1 
+	WHERE COMMUNITY_NO = #{cno}
+</update>
+
+<update id="updateNrecommend">
+	UPDATE COMMUNITY SET N_RECOMMEND = N_RECOMMEND +1 
+	WHERE COMMUNITY_NO = #{cno}
+</update>
+
+<!-- 댓글 -->
+
+<select id="selectReplyList" parameterType="_int" resultMap="ReplyResultSet">
+	SELECT *
+	FROM REPLY
+	WHERE COMMUNITY_NO = #{cno}
+	ORDER BY RE_GROUP ASC , RE_GROUPDEPT
+</select>
+
+<select id="selectMaxGroupNo" resultType="_int">
+	SELECT MAX(RE_GROUP)
+	FROM REPLY
+	WHERE COMMUNITY_NO = #{cno}
+</select>
+
+<insert id="insertReply">
+	INSERT INTO REPLY
+	VALUES (REPLY_SEQ.NEXTVAL , #{communityNo} , #{reGroup} ,  0 , 0 , #{reWriter} , #{reContent} , SYSDATE)
+</insert>
+
+<select id="selectReplyCount" resultType="_int">
+	SELECT COUNT(COMMUNITY_NO)
+	FROM REPLY
+	WHERE COMMUNITY_NO =#{cno}
+</select>
+
+<insert id="insertNewReply">
+	INSERT INTO REPLY
+	VALUES (REPLY_SEQ.NEXTVAL , #{communityNo} , 0 ,  0 , 0 , #{reWriter} , #{reContent} , SYSDATE)
+</insert>
+
+<delete id="deleteReply">
+	DELETE FROM REPLY
+	WHERE RE_NO =#{reNo}
+</delete>
+
+
+<update id="updateRely">
+	UPDATE REPLY SET RE_CONTENT = #{reContent} , RE_WRITERDATE = SYSDATE
+	WHERE RE_NO = #{reNo}
+</update>
+
+<select id="selectDeptNo" resultType="_int">
+	SELECT MAX(RE_GROUPDEPT)
+	FROM REPLY
+	WHERE RE_GROUP = #{reGroup}	
+</select>
+
+<insert id="insertReReply">
+	INSERT INTO REPLY
+	VALUES (REPLY_SEQ.NEXTVAL , #{communityNo} , #{reGroup} ,  1 ,  #{reGroupDept} , #{reWriter} , #{reContent} , SYSDATE)
+</insert>
+
+<select id="selectCount" resultType="_int">
+	SELECT COUNT(*)
+	FROM REPLY
+	WHERE COMMUNITY_NO = #{communityNo} 
+	AND RE_GROUP = #{reGroup}
+	AND RE_GROUPS = 1
+</select>
+
+<update id="updateReplyContent">
+	UPDATE REPLY SET RE_CONTENT = TO_CHAR(-1)
+	WHERE RE_NO = #{reNo}
+</update>
+</mapper>

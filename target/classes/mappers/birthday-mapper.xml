@@ -1,0 +1,335 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper 
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="birthdayMapper">
+
+	<resultMap type="Birthday" id="bServiceResultSet">
+		<id property="bservice_no" column="BSERVICE_NO"/>
+		<result property="sending_time" column="SENDING_TIME"/>
+		<result property="notification_msg" column="NOTIFICATION_MESSAGE"/>
+		<result property="completion_msg" column="COMPLETION_MESSAGE"/>
+		<result property="settlement_date" column="SETTLEMENT_DATE"/>
+		<result property="bservice_status" column="BSERVICE_STATUS"/>
+		<result property="com_code" column="COM_CODE"/>
+	</resultMap>
+	
+	<resultMap type="SendingStatus" id="sendingStsResultSet">
+		<id property="curStatusNo" column="SCSTATUS_NO"></id>
+		<result property="cempSeq" column="CEMP_SEQ"></result>
+		<result property="cempNum" column="CEMP_NUM"></result>
+		<result property="cempDept" column="CEMP_DEPT"></result>
+		<result property="cempJob" column="CEMP_JOB"></result>
+		<result property="cempName" column="CEMP_NAME"></result>
+		<result property="cempPhone" column="CEMP_PHONE"></result>
+		<result property="cempBirth" column="CEMP_BIRTH"></result>
+		<result property="cempEmail" column="CEMP_EMAIL"></result>
+		<result property="sendingMsgDate" column="SENDING_MESSAGE_DATE"></result>
+		<result property="selectDate" column="SELECT_COMPLETE_DATE"></result>
+		<result property="comCode" column="COM_CODE"></result>
+	</resultMap>
+	
+	<resultMap type="SendList" id="sListResultSet">
+		<id property="sListNo" column="SLIST_NO"></id>
+		<result property="cempNum" column="CEMP_NUM"></result>
+		<result property="cempDept" column="CEMP_DEPT"></result>
+		<result property="cempJob" column="CEMP_JOB"></result>
+		<result property="cempName" column="CEMP_NAME"></result>
+		<result property="cempPhone" column="CEMP_PHONE"></result>
+		<result property="cempBirth" column="CEMP_BIRTH"></result>
+		<result property="sendMsgDate" column="SENDING_MESSAGE_DATE"></result>
+		<result property="sListStatus" column="SLIST_STATUS"></result>
+		<result property="glistNo" column="GLIST_NO"></result>
+		<result property="cempSeq" column="CEMP_SEQ"></result>
+	</resultMap>
+	
+	<resultMap type="GiftList" id="giftResultSet">
+		<id property="giftNo" column="GIFT_NO"></id>
+		<result property="giftBrand" column="GIFT_BRAND"></result>
+		<result property="giftName" column="GIFT_NAME"></result>
+		<result property="giftPrice" column="GIFT_PRICE"></result>
+		<result property="changeName" column="CHANGE_NAME"></result>
+	</resultMap>
+	
+	<!-- 선물리스트 관리 modal에서 첫 화면의 폴더 리스트를 나타내기 위한 resultMap -->
+	<resultMap type="GiftFolder" id="giftFolderMap">
+		<result property="glistNo" column="GLIST_NO"></result>
+		<result property="glistName" column="GLIST_NAME"></result>
+		<result property="folderGiftCount" column="GIFT_COUNT"></result>
+		<result property="cempSeq" column="CEMP_SEQ"></result>
+	</resultMap>
+	
+	<!-- 효은님 사용 쿼리 -->
+	<select id="selectBirthSub" parameterType="string" resultMap="bServiceResultSet">
+      SELECT *
+      FROM BIRTHDAY_SERVICE
+      WHERE COM_CODE = #{comCode}
+      AND BSERVICE_STATUS='Y'
+   	</select>
+
+	<select id="countEmp" resultType="_int">
+		SELECT COUNT(*) FROM COMPANY_EMP
+		WHERE COM_CODE = #{comCode}
+		AND CEMP_STATUS='Y'
+	</select>
+
+	<insert id="subscribe" parameterType="Birthday">
+		INSERT INTO BIRTHDAY_SERVICE VALUES
+		(BSERVICE_SEQ.NEXTVAL, #{per_amount}, #{sending_time}, #{notification_msg}, NULL, DEFAULT, DEFAULT, #{com_code})
+	</insert>
+	
+	<select id="subscribeInfo" parameterType="String" resultMap="bServiceResultSet">
+		SELECT * FROM BIRTHDAY_SERVICE WHERE COM_CODE = #{comCode} AND BSERVICE_STATUS='Y'
+	</select>
+	
+	<update id="updateSubscribe" parameterType="Birthday">
+		UPDATE BIRTHDAY_SERVICE SET
+		PER_AMOUNT=#{per_amount}, SENDING_TIME=#{sending_time}, NOTIFICATION_MESSAGE=#{notification_msg}
+		WHERE COM_CODE=#{com_code} AND BSERVICE_STATUS='Y'
+	</update>
+	
+	<select id="subscribeChk" parameterType="String" resultType="_int">
+		SELECT COUNT(*) FROM BIRTHDAY_SERVICE WHERE COM_CODE = #{com_code} AND BSERVICE_STATUS='Y'
+	</select>
+	
+	<update id="deleteSubscribe" parameterType="String">
+		UPDATE BIRTHDAY_SERVICE SET BSERVICE_STATUS='N' WHERE BSERVICE_NO=#{bservice_no}
+	</update>
+	
+	<!-- 구독회사용 -->
+	<!-- 발송예정 -->
+	<select id="sendingcursts" parameterType="SendingStatus" resultMap="sendingStsResultSet">
+		<![CDATA[
+			SELECT 
+			B.CEMP_SEQ, B.CEMP_DEPT, B.CEMP_JOB, B.CEMP_NAME, B.CEMP_PHONE, B.CEMP_BIRTH
+			, A.SENDING_MESSAGE_DATE, A.SELECT_COMPLETE_DATE
+			FROM SENDING_CURRENT_STATUS A
+			JOIN COMPANY_EMP B ON A.CEMP_SEQ = B.CEMP_SEQ
+			WHERE TO_CHAR(B.CEMP_BIRTH,'MM') = TO_CHAR(SYSDATE,'MM')
+			AND TO_CHAR(B.CEMP_BIRTH,'DD') > TO_CHAR(SYSDATE,'DD')+#{sendingTime}
+			AND A.SELECT_COMPLETE_DATE IS NULL
+			AND A.COM_CODE=#{comCode}
+			AND B.CEMP_STATUS='Y'
+			ORDER BY SENDING_MESSAGE_DATE
+		]]>
+	</select>
+	<!-- 발송완료 -->
+	<select id="completeCursts" parameterType="String" resultMap="sendingStsResultSet">
+		SELECT 
+		B.CEMP_SEQ, B.CEMP_DEPT, B.CEMP_JOB, B.CEMP_NAME, B.CEMP_PHONE, B.CEMP_BIRTH
+		, A.SENDING_MESSAGE_DATE, A.SELECT_COMPLETE_DATE
+		FROM SENDING_CURRENT_STATUS A
+		JOIN COMPANY_EMP B ON A.CEMP_SEQ = B.CEMP_SEQ
+		WHERE TO_CHAR(B.CEMP_BIRTH,'MM') = TO_CHAR(SYSDATE,'MM')
+		AND A.COM_CODE=#{comCode}
+        AND A.SELECT_COMPLETE_DATE IS NOT NULL
+		AND B.CEMP_STATUS='Y'
+		ORDER BY SENDING_MESSAGE_DATE
+	</select>
+	
+	<!-- 발송 현황/발송 예정 리스트에서 선택 삭제 -->
+	<delete id="deleteSendStatus" parameterType="_int">
+		UPDATE COMPANY_EMP SET CEMP_STATUS = 'N'
+		WHERE CEMP_SEQ = #{cempSeq}
+	</delete>
+
+	<!-- 발송 현황 - 선택 수정 시 가져올 객체 정보  -->
+	<select id="selectEmpOne" parameterType="_int" resultMap="sendingStsResultSet">
+		SELECT CEMP_NUM, CEMP_DEPT, CEMP_JOB, CEMP_NAME, CEMP_PHONE, CEMP_EMAIL, CEMP_BIRTH FROM COMPANY_EMP
+		WHERE CEMP_SEQ=#{cempSeq} AND CEMP_STATUS='Y'
+	</select>
+	
+	<insert id="insertSendStatus" parameterType="SendingStatus">
+		INSERT INTO COMPANY_EMP VALUES
+		(COM_EMP_SEQ.NEXTVAL, #{cempName}, #{cempDept}, #{cempJob}, #{cempEmail}, #{cempPhone}, #{cempBirth}, #{cempNum}, 'Y', #{comCode})
+	</insert>
+	
+	<insert id="insertSendStatus2" parameterType="SendingStatus">
+		INSERT INTO SENDING_CURRENT_STATUS VALUES
+		(SC_STATUS_SEQ.NEXTVAL, #{sendingMsgDate}, NULL, #{comCode}, COM_EMP_SEQ.CURRVAL)
+	</insert>
+	
+	<update id="updateSendStatus" parameterType="SendingStatus">
+		UPDATE COMPANY_EMP SET
+		CEMP_NAME=#{cempName}, CEMP_DEPT=#{cempDept}, CEMP_JOB=#{cempJob}, CEMP_NUM=#{cempNum},
+		CEMP_EMAIL=#{cempEmail}, CEMP_PHONE=#{cempPhone}, CEMP_BIRTH=#{cempBirth} 
+		WHERE CEMP_SEQ=#{cempSeq}
+	</update>
+	
+	<select id="selectSendingTime" resultType="String">
+		SELECT SENDING_TIME	FROM BIRTHDAY_SERVICE
+		WHERE COM_CODE=#{comCode} AND BSERVICE_STATUS='Y'
+	</select>
+	
+	<!-- 발송 리스트 삽입, 수정 -->
+	<insert id="insertSendList" parameterType="SendList">
+		INSERT INTO COMPANY_EMP VALUES
+		(COM_EMP_SEQ.NEXTVAL, #{cempName}, #{cempDept}, #{cempJob}, #{cempEmail}, #{cempPhone}, #{cempBirth}, #{cempNum}, 'Y', #{comCode})
+	</insert>
+	
+	<insert id="insertSendList2" parameterType="SendList">
+		INSERT INTO SENDING_LIST VALUES
+		(SEND_LIST_SEQ.NEXTVAL, #{sendMsgDate}, DEFAULT, DEFAULT, COM_EMP_SEQ.CURRVAL)
+	</insert>
+	
+	<update id="updateSendList" parameterType="SendList">
+		UPDATE COMPANY_EMP SET
+		CEMP_NAME=#{cempName}, CEMP_DEPT=#{cempDept}, CEMP_JOB=#{cempJob}, CEMP_NUM=#{cempNum},
+		CEMP_EMAIL=#{cempEmail}, CEMP_PHONE=#{cempPhone}, CEMP_BIRTH=#{cempBirth} 
+		WHERE CEMP_SEQ=#{cempSeq}
+	</update>
+	
+	<select id="selectSendList" resultMap="sListResultSet">
+		SELECT 
+		B.CEMP_SEQ, B.CEMP_DEPT, B.CEMP_JOB, B.CEMP_NAME, B.CEMP_PHONE, B.CEMP_BIRTH
+		, A.SENDING_MESSAGE_DATE, A.GLIST_NO
+		FROM SENDING_LIST A
+		JOIN COMPANY_EMP B ON A.CEMP_SEQ = B.CEMP_SEQ
+		WHERE TO_CHAR(B.CEMP_BIRTH,'MM') = TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE,'MM'),1),'MM')
+		AND B.COM_CODE=#{comCode}
+		AND B.CEMP_STATUS='Y'
+		ORDER BY SENDING_MESSAGE_DATE
+	</select>
+	
+	<select id="selectPerAmount" parameterType="String" resultType="String">
+		SELECT PER_AMOUNT FROM BIRTHDAY_SERVICE
+		WHERE BSERVICE_STATUS='Y'
+		AND COM_CODE=#{comCode}
+	</select>
+	
+	<select id="selectGiftList" parameterType="_int" resultMap="giftResultSet">
+		<![CDATA[
+			SELECT A.GIFT_NO, A.GIFT_BRAND, A.GIFT_NAME, A.GIFT_PRICE, B.CHANGE_NAME
+			FROM BIRTHDAY_GIFT A
+			JOIN GIFT_ATTACHMENT B ON A.GIFT_NO = B.GIFT_REF_NO
+			WHERE GIFT_STATUS='Y'
+			AND GIFT_PRICE <= #{perAmountMax}
+		]]>
+	</select>
+	
+	<select id="selectCtgry" parameterType="map" resultMap="giftResultSet">
+		<![CDATA[
+			SELECT A.GIFT_NO, A.GIFT_BRAND, A.GIFT_NAME, A.GIFT_PRICE, B.CHANGE_NAME
+			FROM BIRTHDAY_GIFT A
+			JOIN GIFT_ATTACHMENT B ON A.GIFT_NO = B.GIFT_REF_NO
+			WHERE GIFT_STATUS='Y'
+			AND GIFT_PRICE <= #{perAmountMax}
+		]]>
+			<choose>
+				<when test="ctgryNum == 1">
+					
+				</when>
+				<when test="ctgryNum == 2">
+					ORDER BY GIFT_PRICE DESC
+				</when>
+				<when test="ctgryNum == 3">
+					ORDER BY GIFT_PRICE ASC
+				</when>
+			</choose>
+	</select>
+	
+	<!-- GIFT_LIST의 데이터 추출 - 폴더명에만 사용 -->
+	<select id="selectFolderList" resultMap="giftFolderMap">
+		SELECT A.GLIST_NO, A.GLIST_NAME, NVL(COUNT(B.GLIST_DETAIL_NO),0) AS GIFT_COUNT
+		FROM GIFT_LIST A
+		LEFT OUTER JOIN GIFT_LIST_DETAIL B ON A.GLIST_NO = B.GLIST_NO
+		LEFT OUTER JOIN BIRTHDAY_GIFT C ON B.GIFT_NO = C.GIFT_NO
+		LEFT OUTER JOIN GIFT_ATTACHMENT D ON C.GIFT_NO = D.GIFT_REF_NO
+		AND D.CHANGE_NAME IS NOT NULL
+		GROUP BY A.GLIST_NO, A.GLIST_NAME
+		ORDER BY TO_NUMBER(SUBSTR(GLIST_NO,7)) ASC
+	</select>
+	
+	<!-- 새로운 폴더 생성 -->
+	<insert id="addGiftFolder" parameterType="String">
+		INSERT INTO GIFT_LIST VALUES
+		('FOLDER'||GIFT_LIST_SEQ.NEXTVAL, #{folderName})
+	</insert>
+	
+	<!-- 발송리스트의 선물리스트 목록 조회 -->
+	<select id="selectGiftFolder" resultMap="giftFolderMap">
+		<![CDATA[
+			SELECT A.GLIST_NO, A.GLIST_NAME, NVL(COUNT(B.GLIST_DETAIL_NO),0) AS GIFT_COUNT
+			FROM GIFT_LIST A
+			LEFT OUTER JOIN GIFT_LIST_DETAIL B ON A.GLIST_NO = B.GLIST_NO
+			LEFT OUTER JOIN BIRTHDAY_GIFT C ON B.GIFT_NO = C.GIFT_NO
+			LEFT OUTER JOIN GIFT_ATTACHMENT D ON C.GIFT_NO = D.GIFT_REF_NO
+			AND D.CHANGE_NAME IS NOT NULL
+			GROUP BY A.GLIST_NO, A.GLIST_NAME
+			HAVING COUNT(B.GLIST_DETAIL_NO) > 0
+			ORDER BY TO_NUMBER(SUBSTR(GLIST_NO,7)) ASC
+		]]>
+	</select>
+	
+	<update id="updateGiftList" parameterType="GiftFolder">
+		UPDATE SENDING_LIST SET
+		GLIST_NO=#{glistNo}
+		WHERE CEMP_SEQ=#{cempSeq}
+	</update>
+	
+	<!-- 각 폴더의 정보 추출 -->
+	<select id="selectFolderInfo" parameterType="_int" resultMap="giftResultSet">
+		SELECT A.GIFT_NO, A.GIFT_BRAND, A.GIFT_NAME, A.GIFT_PRICE, B.CHANGE_NAME
+		FROM BIRTHDAY_GIFT A
+		JOIN GIFT_ATTACHMENT B ON A.GIFT_NO = B.GIFT_REF_NO
+		WHERE A.GIFT_STATUS='Y'
+		AND A.GIFT_NO IN (
+		SELECT GIFT_NO 
+		FROM GIFT_LIST_DETAIL 
+		WHERE GLIST_NO=(SELECT GLIST_NO FROM
+		(SELECT ROW_NUMBER() OVER(ORDER BY TO_NUMBER(SUBSTR(GLIST_NO,7))) AS RNUM, GLIST_NO FROM GIFT_LIST
+		ORDER BY TO_NUMBER(SUBSTR(GLIST_NO,7)) ASC) A
+		WHERE A.RNUM = #{rowNum})
+		)
+	</select>
+	
+	<!-- 선택한 폴더에 선택한 상품 추가 -->
+	<insert id="addGiftDetail" parameterType="map">
+		INSERT INTO GIFT_LIST_DETAIL VALUES
+		(GIFT_DLIST_SEQ.NEXTVAL,
+		<foreach collection="array" item="detailArr" separator=",">
+			#{detailArr}
+		</foreach>
+		)
+	</insert>
+	
+	<!-- GIFT_LIST_DETAIL -->
+	<resultMap type="GiftFolderDetail" id="giftFolderDetailMap">
+		<result property="glistDetailNo" column="GIFT_LIST_DETAIL"></result>
+		<result property="glistNo" column="GLIST_NO"></result>
+		<result property="giftNo" column="GIFT_NO"></result>
+	</resultMap>
+	
+	<!-- 폴더에 넣는 데이터 중복 체크 -->
+	<select id="checkDuplicate" parameterType="map" resultMap="giftFolderDetailMap">
+		SELECT * FROM GIFT_LIST_DETAIL
+		WHERE 1=1
+		AND GLIST_NO IN
+		<foreach collection="array" item="detailArr" open="(" close=")" separator=",">
+		 #{detailArr}		
+		</foreach>
+		AND GIFT_NO IN
+		<foreach collection="array" item="detailArr" open="(" close=")" separator=",">
+		 #{detailArr}		
+		</foreach>
+	</select>
+	
+	<!-- 폴더 삭제 -->
+	<delete id="deleteGiftFolder" parameterType="String">
+		DELETE FROM GIFT_LIST WHERE GLIST_NO = #{glistNo}
+	</delete>
+	
+	<!-- 폴더 상세 내용 삭제 -->
+	<delete id="deleteFolderDetail" parameterType="map">
+		DELETE FROM GIFT_LIST_DETAIL
+		WHERE 1=1
+		AND GLIST_NO IN
+		<foreach collection="array" item="delGiftArr" open="(" close=")" separator=",">
+		 #{delGiftArr}		
+		</foreach>
+		AND GIFT_NO IN
+		<foreach collection="array" item="delGiftArr" open="(" close=")" separator=",">
+		 #{delGiftArr}		
+		</foreach>
+	</delete>
+</mapper>

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper 
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="snackSubsMapper">
+
+	<resultMap type="SnackSubs" id="SnackSubsResultSet">
+		<id property="subsNo" column="SUBS_NO"/>
+		<result property="comCode" column="COM_CODE"/>
+		<result property="budget" column="BUDGET"/>
+		<result property="snackRatio" column="SNACK_RATIO"/>
+		<result property="drinkRatio" column="DRINK_RATIO"/>
+		<result property="retortRatio" column="RETORT_RATIO"/>
+		<result property="snackCategory" column="SNACK_CATEGORY"/>
+		<result property="drinkCategory" column="DRINK_CATEGORY"/>
+		<result property="retortCategory" column="RETORT_CATEGORY"/>
+		<result property="preferTaste" column="PREFER_TASTE"/>
+		<result property="dislikeFlavour" column="DISLIKE_FLAVOUR"/>
+		<result property="deliveryDate" column="DELIVERY_DATE"/>
+		<result property="settleDate" column="SETTLEMENT_DATE"/>
+		<result property="modifyDate" column="MODIFY_DATE"/>
+		<result property="cancelDate" column="CANCEL_DATE"/>
+		<result property="subsStatus" column="SUBS_STATUS"/>
+	</resultMap>
+
+	<insert id="insertSnackSubs" parameterType="SnackSubs">
+		INSERT INTO SNACK_SUBS
+		VALUES(SNACK_SUBS_SEQ.NEXTVAL, #{comCode}, #{budget}, #{snackRatio}, #{drinkRatio}, #{retortRatio}, #{snackCategory}, #{drinkCategory}, #{retortCategory}, #{preferTaste}, #{dislikeFlavour}, #{deliveryDate}, SYSDATE, SYSDATE, NULL, DEFAULT)
+	</insert>
+	
+	<select id="selectSubsInfo" parameterType="String" resultMap="SnackSubsResultSet">
+		SELECT *
+		FROM SNACK_SUBS
+		WHERE COM_CODE = #{comCode}
+		AND SUBS_STATUS = 'Y'
+	</select>
+	
+	<update id="updateSnackSubs" parameterType="SnackSubs">
+		UPDATE SNACK_SUBS
+		SET BUDGET = #{budget}, SNACK_RATIO = #{snackRatio}, DRINK_RATIO = #{drinkRatio}, RETORT_RATIO = #{retortRatio}, 
+		    SNACK_CATEGORY = #{snackCategory}, DRINK_CATEGORY = #{drinkCategory}, RETORT_CATEGORY = #{retortCategory}, 
+		    PREFER_TASTE = #{preferTaste}, DISLIKE_FLAVOUR = #{dislikeFlavour}, DELIVERY_DATE = #{deliveryDate}, MODIFY_DATE = SYSDATE
+		WHERE SUBS_NO = #{subsNo}
+	</update>
+	
+	<update id="cancelSnackSubs" parameterType="_int">
+		UPDATE SNACK_SUBS
+		SET CANCEL_DATE = SYSDATE, SUBS_STATUS = 'N'
+		WHERE SUBS_NO = #{subsNo}
+	</update>
+	
+	<select id="checkSubsDup" parameterType="String" resultType="_int">
+		SELECT COUNT(*)
+		FROM SNACK_SUBS
+		WHERE COM_CODE = #{comCode}
+		AND SUBS_STATUS = 'Y'
+	</select>
+	
+	<select id="selectSnackSub" parameterType="string" resultMap="SnackSubsResultSet">
+		SELECT *
+	    FROM SNACK_SUBS
+	    WHERE COM_CODE = #{comCode}
+    </select>
+
+</mapper>

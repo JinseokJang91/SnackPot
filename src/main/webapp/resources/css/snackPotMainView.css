@@ -1,0 +1,185 @@
+@charset "UTF-8";
+
+/*간식 ,생일 구독 배너*/
+.img1{
+    height: 580px;
+    text-align: center;
+   
+}
+.carousel-caption>h1{
+    font-weight: bold;
+   
+}
+
+.carousel-caption {
+    margin-bottom: 180px;
+    margin-right: 500px;
+    color: black;
+}
+
+/*스낵구독, 생일구독 버튼*/
+.carousel-caption>.snackBtn , .hbdkBtn{
+    margin-left: 33%;
+   
+}
+a.animated-button.thar-three {
+	color: rgb(245, 208, 66);
+    background-color: rgb(10, 23, 78);
+    font-size: 18px;
+    width: 150px;
+    height: 40px;
+	cursor: pointer;
+	display: block;
+	position: relative;
+	transition: all 0.5s cubic-bezier(0.42, 0, 0.58, 1);
+    border-radius: 5px;
+}
+a.animated-button.thar-three:hover {
+	color: rgb(10, 23, 78) !important;
+	background-color: transparent;
+	text-shadow: nthree;
+}
+a.animated-button.thar-three:hover:before {
+	left: 0%;
+	right: auto;
+	width: 100%;
+}
+a.animated-button.thar-three:before {
+	display: block;
+	position: absolute;
+	top: 0px;
+	right: 0px;
+	height: 100%;
+	width: 0px;
+	z-index: -1;
+	content: '';
+	color: #000 !important;
+	background: rgb(245, 208, 66);
+	transition: all 0.5s cubic-bezier(0.42, 0, 0.58, 1);
+    border-radius: 5px;
+}
+/*홈페이지 내용*/
+.snackPotName{
+    color:rgb(245, 208, 66);
+    font-weight: bolder;
+}
+/*스낵팟 이유*/
+.question>h4{
+    text-align: center;
+    margin-bottom: 25px;
+    font-weight: bolder;
+}
+body{
+    margin-top:20px; 
+}
+.m-t-5{
+    margin-top: 5px;   
+}
+.card {
+    background: #fff;
+    margin-bottom: 30px;
+    transition: .5s;
+    border: 1px solid lightgray;
+    border-radius: 1.5em;
+    display: inline-block;
+    position: relative;
+    width: 100%;
+    box-shadow: none;
+}
+.card .body {
+    font-size: 14px;
+    color: black;
+    padding: 20px;
+    font-weight: 400;
+}
+.queTxt{
+    text-align: left;
+    font-size: medium;
+}
+.col-md-8{
+    padding-top: 30px;
+}
+.profile-page .profile-header {
+    position: relative
+}
+.profile-page .profile-header .profile-image img {
+    border-radius: 50%;
+    width: 120px;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+}
+.card-img-top{
+    width: 250px;
+    margin-left: 50px;
+}
+/*생일*/
+.bDiv1 ,.bDiv2{
+border-radius: 5px;
+background-color: rgba(245, 208, 66, 0.08);
+}
+.bimg1{
+    width: 50%;
+    border-radius: 5px;
+   
+}
+.bimg2{
+    width: 50%;
+    height: 250px;
+    margin-left: 126px;
+    border-radius: 5px;
+}
+/*생일팟 이미지 옆 텍스트*/
+.bl1{
+    margin-left: 140px;
+    font-size:18px;
+}
+.bl2{
+    margin-left: 60px;
+    font-size: 18px;
+}
+/*생일 4컷 이미지*/
+.card-img-top{
+    margin-top: 10px;
+    margin-left: 7px;
+    margin-right: 7px;
+}
+.partnerImg{
+    margin-left: 20%;
+}
+.partnerLb{
+    margin-left: 30%;
+}
+.b4Img{
+    text-align: center;
+}
+.card{
+    margin-right: 15px;
+    margin-top:20px;
+}
+.bnumber{
+    font-weight: bold;
+    font-size: 20px;
+    color:rgb(245, 208, 66);
+}
+.percentImg > label{
+    text-align: center;
+    margin: 3px 90px 0 37px;
+    padding-left: 100px;
+    font-weight: bold;
+}
+/*스낵서비스 이미지 사진*/
+.snackServiceImg{
+    width: 500px;
+    border-radius: 2px;
+}
+.snack4Img{
+    margin-bottom: 20px;
+    margin-top: 10px;
+}
+.serviceNumber{
+    color:rgb(245, 208, 66);
+    font-weight: bold;
+    margin-right: 10px;
+}
+.card-title{
+    font-weight: bolder;
+}

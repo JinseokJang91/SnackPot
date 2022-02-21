@@ -1,0 +1,411 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper 
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="invenMapper">
+
+	<resultMap id="arrivalResultSet" type="Arrival">
+		<id column="arrival_no" property="arrivalNo" />
+		<result column="amount" property="amount" />
+		<result column="unit" property="unit" />
+		<result column="remark" property="remark" />
+		<result column="arrival_date" property="arrivalDate" />
+		<result column="snack_no" property="snackNo" />
+		<result column="snack_name" property="snackName" />
+		<result column="stock" property="stock" />
+
+	</resultMap>
+
+
+	<resultMap id="releaseResultSet" type="Release">
+		<id column="release_no" property="releaseNo" />
+		<result column="amount" property="amount" />
+		<result column="unit" property="unit" />
+		<result column="remark" property="remark" />
+		<result column="release_date" property="releaseDate" />
+		<result column="snack_no" property="snackNo" />
+		<result column="snack_name" property="snackName" />
+		<result column="stock" property="stock" />
+	</resultMap>
+
+	<resultMap type="Snack" id="snackResultSet">
+
+		<id column="snack_no" property="snackNo" />
+		<result column="snack_name" property="snackName" />
+		<result column="purchase_price" property="purchasePrice" />
+		<result column="release_price" property="releasePrice" />
+		<result column="enroll_date" property="enrollDate" />
+		<result column="status" property="status" />
+		<result column="stock" property="stock" />
+		<result column="unit" property="unit" />
+		<result column="taste" property="taste" />
+		<result column="aroma" property="aroma" />
+		<result column="category" property="category" />
+		<result column="detail" property="detail" />
+
+	</resultMap>
+
+	<resultMap type="ProductAttachment"
+		id="ProductAttachmentResultMap">
+
+		<id column="file_no" property="fileNo" />
+		<result column="origin_name" property="originName" />
+		<result column="change_name" property="changeName" />
+		<result column="file_path" property="filePath" />
+		<result column="snack_no" property="snackNo" />
+
+	</resultMap>
+
+	<resultMap type="Chart" id="ChartResultMap">
+
+		<id column="SNACK_NAME" property="snackName" />
+		<result column="AMOUNT" property="amount" />
+
+	</resultMap>
+
+
+
+	<insert id="insertSnack" parameterType="Product">
+
+
+		INSERT INTO SNACK
+		VALUES
+		(${snackNo}, '${snackName}', ${purchasePrice},
+		${releasePrice},
+		sysdate, 'Y', 0, '${unit}', ${categoryNo}, ${detailNo},
+		${tasteNo},
+		${aromaNo}
+		)
+
+	</insert>
+
+	<insert id="insertSnackAttach" parameterType="ProductAttachment">
+
+		INSERT INTO
+		SNACK_ATTACHMENT
+		VALUES (
+		SNACKATTACH_SEQ.NEXTVAL, '${originName}',
+		'${changeName}', '${filePath}',
+		${snackNo}
+		)
+
+	</insert>
+
+	<insert id="arrivalInsert" parameterType="Arrival">
+
+
+		INSERT INTO ARRIVAL
+		VALUES (
+		ARRIVAL_SEQ.NEXTVAL,${amount}, '${remark}', sysdate,
+		${snackNo}
+		)
+
+	</insert>
+
+	<select id="todayArrivalCount" resultType="_int">
+
+
+		SELECT COUNT(*)
+		FROM
+		ARRIVAL
+		WHERE TO_CHAR(ARRIVAL_DATE,'YYYYMMDD') =
+		TO_CHAR(TO_DATE(${date}, 'YYYYMMDD'),'YYYYMMDD')
+
+
+	</select>
+
+	<select id="todayArrivalList" resultMap="arrivalResultSet">
+
+		SELECT
+		A.ARRIVAL_NO,
+		A.AMOUNT,
+		B.UNIT,
+		A.REMARK,
+		A.ARRIVAL_DATE,
+		A.SNACK_NO,
+		B.SNACK_NAME,
+		B.STOCK
+		FROM ARRIVAL A
+		JOIN SNACK B
+		ON A.SNACK_NO = B.SNACK_NO
+		WHERE
+		TO_CHAR(ARRIVAL_DATE,'YYYYMMDD') = TO_CHAR(TO_DATE(${date},
+		'YYYYMMDD'),'YYYYMMDD')
+		ORDER BY ARRIVAL_NO DESC
+
+
+	</select>
+
+
+	<insert id="releaseInsert" parameterType="Release">
+
+
+		INSERT INTO RELEASE
+		VALUES (
+		RELEASE_SEQ.NEXTVAL,${amount}, '${remark}', sysdate,
+		${snackNo}, '1'
+		)
+
+	</insert>
+
+	<select id="todayReleaseCount" resultType="_int">
+		SELECT COUNT(*)
+		FROM
+		RELEASE
+		WHERE TO_CHAR(RELEASE_DATE,'YYYYMMDD') =
+		TO_CHAR(TO_DATE(${date}, 'YYYYMMDD'),'YYYYMMDD')
+
+
+	</select>
+
+	<select id="todayReleaseList" resultMap="releaseResultSet">
+
+
+		SELECT
+		A.RELEASE_NO,
+		A.AMOUNT,
+		B.UNIT,
+		A.REMARK,
+		A.RELEASE_DATE,
+		A.SNACK_NO,
+		B.SNACK_NAME,
+		B.STOCK
+		FROM RELEASE A
+		JOIN SNACK B
+		ON A.SNACK_NO =
+		B.SNACK_NO
+		WHERE
+		TO_CHAR(RELEASE_DATE,'YYYYMMDD') =
+		TO_CHAR(TO_DATE(${date},
+		'YYYYMMDD'),'YYYYMMDD')
+		ORDER BY RELEASE_NO
+		DESC
+
+	</select>
+
+	<select id="invenListCount" resultType="_int">
+
+		SELECT COUNT(*)
+		FROM SNACK
+		ORDER BY SNACK_NO DESC
+
+	</select>
+
+	<select id="invenList" resultMap="snackResultSet">
+
+
+		SELECT
+		A.SNACK_NO,
+		A.SNACK_NAME,
+		A.PURCHASE_PRICE,
+		A.RELEASE_PRICE,
+		A.ENROLL_DATE,
+		A.STOCK,
+		A.UNIT,
+		B.CATEGORY,
+		C.DETAIL,
+		D.TASTE,
+		E.AROMA
+		FROM
+		SNACK A
+		JOIN SNACK_CATEGORY B
+		ON
+		A.CATEGORY_NO = B.CATEGORY_NO
+		JOIN
+		SNACK_CATEGORY_DETAIL C
+		ON A.DETAIL_NO
+		= C.DETAIL_NO
+		JOIN TASTE D
+		ON
+		A.TASTE_NO = D.TASTE_NO
+		JOIN AROMA E
+		ON
+		A.AROMA_NO = E.AROMA_NO
+		WHERE
+		STATUS = 'Y'
+		ORDER BY SNACK_NO DESC
+
+	</select>
+
+
+	<select id="sNoSearchCount" resultType="_int">
+		SELECT COUNT(*)
+		FROM
+		SNACK
+		WHERE SNACK_NO = ${search}
+
+
+	</select>
+
+	<select id="sNameSearchCount" resultType="_int">
+		SELECT COUNT(*)
+		FROM
+		SNACK
+		WHERE SNACK_NAME LIKE '%${search}%'
+
+
+	</select>
+
+	<select id="sNoSearch" resultMap="snackResultSet">
+
+
+		SELECT
+		A.SNACK_NO,
+		A.SNACK_NAME,
+		A.PURCHASE_PRICE,
+		A.RELEASE_PRICE,
+		A.ENROLL_DATE,
+		A.STOCK,
+		A.UNIT,
+		B.CATEGORY,
+		C.DETAIL,
+		D.TASTE,
+		E.AROMA
+		FROM
+		SNACK A
+		JOIN SNACK_CATEGORY B
+		ON
+		A.CATEGORY_NO = B.CATEGORY_NO
+		JOIN
+		SNACK_CATEGORY_DETAIL C
+		ON A.DETAIL_NO
+		= C.DETAIL_NO
+		JOIN TASTE D
+		ON
+		A.TASTE_NO = D.TASTE_NO
+		JOIN AROMA E
+		ON
+		A.AROMA_NO = E.AROMA_NO
+		WHERE STATUS = 'Y'
+		AND A.SNACK_NO = ${search}
+		ORDER BY SNACK_NO DESC
+
+	</select>
+
+
+	<select id="sNameSearch" resultMap="snackResultSet">
+
+
+		SELECT
+		A.SNACK_NO,
+		A.SNACK_NAME,
+		A.PURCHASE_PRICE,
+		A.RELEASE_PRICE,
+		A.ENROLL_DATE,
+		A.STOCK,
+		A.UNIT,
+		B.CATEGORY,
+		C.DETAIL,
+		D.TASTE,
+		E.AROMA
+		FROM
+		SNACK A
+		JOIN
+		SNACK_CATEGORY B
+		ON A.CATEGORY_NO = B.CATEGORY_NO
+		JOIN
+		SNACK_CATEGORY_DETAIL C
+		ON A.DETAIL_NO = C.DETAIL_NO
+		JOIN TASTE D
+		ON
+		A.TASTE_NO = D.TASTE_NO
+		JOIN AROMA E
+		ON A.AROMA_NO = E.AROMA_NO
+		WHERE
+		SNACK_NAME LIKE '%${search}%'
+		AND STATUS = 'Y'
+		ORDER BY SNACK_NO DESC
+
+	</select>
+
+	<select id="invenDetail" resultMap="snackResultSet">
+
+
+		SELECT
+		A.SNACK_NO,
+		A.SNACK_NAME,
+		A.PURCHASE_PRICE,
+		A.RELEASE_PRICE,
+		A.ENROLL_DATE,
+		A.STOCK,
+		A.UNIT,
+		B.CATEGORY,
+		C.DETAIL,
+		D.TASTE,
+		E.AROMA
+		FROM
+		SNACK A
+		JOIN
+		SNACK_CATEGORY B
+		ON A.CATEGORY_NO = B.CATEGORY_NO
+		JOIN
+		SNACK_CATEGORY_DETAIL C
+		ON A.DETAIL_NO = C.DETAIL_NO
+		JOIN TASTE D
+		ON
+		A.TASTE_NO = D.TASTE_NO
+		JOIN AROMA E
+		ON A.AROMA_NO = E.AROMA_NO
+		WHERE
+		SNACK_NO = ${snackNo}
+
+	</select>
+
+	<select id="invenDetailAttach"
+		resultMap="ProductAttachmentResultMap">
+
+		SELECT *
+		FROM SNACK_ATTACHMENT
+		WHERE SNACK_NO = ${snackNo}
+
+
+	</select>
+
+
+	<select id="snackChart" resultMap="ChartResultMap">
+
+		SELECT *
+		FROM
+		(SELECT
+		B.SNACK_NAME,
+		SUM(A.AMOUNT) AS AMOUNT
+		FROM RELEASE A
+		JOIN SNACK B
+		ON
+		A.SNACK_NO = B.SNACK_NO
+		GROUP BY B.SNACK_NAME
+		ORDER BY AMOUNT DESC)
+		WHERE ROWNUM BETWEEN 1 AND 30
+
+	</select>
+
+
+	<select id="checkAmount" resultType="_int">
+
+		SELECT
+		STOCK
+		FROM SNACK
+		WHERE SNACK_NO = ${snackNo}
+
+
+	</select>
+
+
+	<select id="checkSnackNo" resultType="_int">
+
+		SELECT COUNT(*)
+		FROM
+		SNACK
+		WHERE SNACK_NO = ${snackNo}
+
+	</select>
+	
+	<select id="getsnackName" resultType="String">
+	
+	SELECT SNACK_NAME
+	FROM SNACK 
+	WHERE SNACK_NO = ${snackNo}
+	
+	</select>
+	
+</mapper>
