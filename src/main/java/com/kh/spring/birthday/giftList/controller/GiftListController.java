@@ -59,6 +59,7 @@ public class GiftListController {
 		return new Gson().toJson(folderList);
 	}
 	
+	// *카테코리별 선물 리스트 출력
 	@ResponseBody
 	@RequestMapping(value="selectCtgry.birth")
 	public ArrayList<GiftList> selectCtgry(int ctgryNum, HttpSession session){

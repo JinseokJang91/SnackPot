@@ -26,7 +26,7 @@ public class HO_SendListController {
 	public String selectList(Model model, HttpSession session) {
 		
 		String comCode = ((SnackpotEmp)session.getAttribute("loginEmp")).getSempComCode();
-	
+		//구독 정보 중복 체크
 		int birthSubsChk = sendListService.subscribeChk(comCode);
 	
 		int sendingTime = selectSendingTime(comCode);
@@ -52,7 +52,9 @@ public class HO_SendListController {
 				
 				list.get(i).setSendMsgDate(thisYear + (sdf.format(cal.getTime())).substring(4));
 			
-				String phone = (list.get(i).getCempPhone()).substring(0,3)+"-"+(list.get(i).getCempPhone()).substring(3,7)+"-"+(list.get(i).getCempPhone().substring(7,11));
+				String phone = (list.get(i).getCempPhone()).substring(0,3)
+								+"-"+(list.get(i).getCempPhone()).substring(3,7)
+								+"-"+(list.get(i).getCempPhone().substring(7,11));
 				
 				list.get(i).setCempPhone(phone);
 			}

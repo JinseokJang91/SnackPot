@@ -31,7 +31,6 @@
 #giftArea{
 	height: 100vh;
 	overflow: scroll;
-	/*background-color: rgb(241, 251, 255);*/
 }
 #giftCount{
 	color: red;
@@ -303,6 +302,7 @@
 								});
 							});
 						</script>
+						
 						<div class="row row-cols-1 row-cols-md-5" id="giftListArea">
 							<c:forEach items="${list }" var="giftList">
 								<div class="col mb-4 gift">
@@ -601,7 +601,7 @@
 	        });
 	    });
 	    
-	    <%-- 상품 정렬(구독회사 giftList에는 세 개에서 각각 실행하는 ajax를 하나로 합쳐놓음) --%>
+	    <%-- 상품 정렬(구독회사 giftList에는 세 개에서 각각 실행하는 ajax를 하나로 합쳐놓음 - 비교용) --%>
 		$(function(){
 			
 			<%-- footer 설정 --%>
@@ -621,7 +621,7 @@
 			$("#seeMoreItems").show();
 			
 			var ctgryNum;
-			
+			<%-- 추천상품순 정렬 --%>
 			$("#giftCtgry1").on('click', function(){
 				
 				$("#giftCtgry1").css("font-weight", "bolder");
@@ -695,7 +695,7 @@
 					}
 				});
 			});
-
+			<%-- 높은가격순 정렬 --%>
 			$("#giftCtgry2").on('click', function(){
 				
 				$("#giftCtgry1").css("font-weight", "normal");
@@ -769,7 +769,7 @@
 					}
 				});
 			});
-			
+			<%-- 낮은가격순 정렬 --%>
 			$("#giftCtgry3").on('click', function(){
 				
 				$("#giftCtgry1").css("font-weight", "normal");

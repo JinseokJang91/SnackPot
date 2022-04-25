@@ -26,9 +26,10 @@ public class SendingStatusController {
 	@Autowired
 	private SendingStatusService sendingStatusService;
 	
+	// *발송 현황 리스트
 	@RequestMapping(value="sendingcursts.birth")
 	public String sendingcursts(Model model, HttpSession session) {
-		
+		// 1. 구독 정보 존재여부 확인 - session에 담긴 loginUser객체의 회사 코드를 사용
 		String comCode = ((CompanyMember)session.getAttribute("loginUser")).getComCode();
 		
 		int birthSubsChk = sendingStatusService.subscribeChk(comCode);
@@ -38,12 +39,13 @@ public class SendingStatusController {
 		SendingStatus selectInfo = new SendingStatus();
 		selectInfo.setSendingTime(sendingTime);
 		selectInfo.setComCode(comCode);
-		
+		// 2. 구독 정보 데이터 list에 담기
 		if(sendingTime < 0) {
 			model.addAttribute("msg", "구독 정보가 존재하지 않습니다.");
 			
 			return "common/alert";
 		}else {
+			// 2-1. 데이터를 우선 list에 담는다.
 			ArrayList<SendingStatus> list = sendingStatusService.sendingcursts(selectInfo);
 
 			Calendar cal = Calendar.getInstance();
@@ -53,13 +55,15 @@ public class SendingStatusController {
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 			
 			for(int i=0; i<list.size(); i++) {
-
+				// 2-2. 발송 날짜를 원하는 형식으로 출력
 				cal.setTime(list.get(i).getCempBirth());
 				cal.add(Calendar.DATE, -sendingTime);
 				
 				list.get(i).setSendingMsgDate(thisYear + (sdf.format(cal.getTime())).substring(4));
-				
-				String phone = (list.get(i).getCempPhone()).substring(0,3)+"-"+(list.get(i).getCempPhone()).substring(3,7)+"-"+(list.get(i).getCempPhone().substring(7,11));
+				// 2-3. 전화번호를 원하는 형식으로 출력
+				String phone = (list.get(i).getCempPhone()).substring(0,3)+"-"
+							  +(list.get(i).getCempPhone()).substring(3,7)+"-"
+							  +(list.get(i).getCempPhone().substring(7,11));
 				
 				list.get(i).setCempPhone(phone);
 			}

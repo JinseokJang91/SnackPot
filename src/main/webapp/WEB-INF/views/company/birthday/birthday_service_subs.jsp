@@ -18,8 +18,6 @@
     #birthSubOuter{
     	margin: auto;
     	width: 100%;
-    	/*border: 1px solid black;*/
-    	/*padding: 3rem;*/
     }
     #subsBirthService{
     	margin: auto;
@@ -29,9 +27,6 @@
     	margin: auto;
     	width: 60%;
     	text-align: center;
-    }
-    .per_amount, .sending_time{
-    	
     }
     .per_amount input[name="per_amount"], .sending_time input[name="sending_time"]{
 		display:none;
@@ -108,7 +103,6 @@
 		
 		<%-- 생일 구독을 이미 하고 있는지 체크 --%>
 		$(function(){
-			
 			var chkResult = ${chkResult};
 			
 			$("#chkService").hide();
@@ -326,10 +320,10 @@
 		                }
 		            }
 		        }
-		    })
-		    
-		})
+		    });
+		});
 	</script>
+	
 	<script>
 		<%-- 사원리스트 불러오기 버튼을 누른 후 나타나게될 두 가지 결과를 먼저 hide --%>
 		$(function(){

@@ -113,7 +113,9 @@
 		
 		                <div class="accordion" id="giftAccordion">
 		                    <ul class="list-group" id="folderUlTag" style="list-style: none;">
-		                    	<%-- 선물 폴더 리스트 ajax로 출력되는 부분 --%>
+		                    	<%-- 
+		                    		선물 폴더 리스트 ajax로 출력되는 부분 
+		                    	--%>
 		                    </ul>
 		                </div><hr>   
 		            </div>

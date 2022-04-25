@@ -11,29 +11,16 @@
 <title>생일 구독 조회</title>
 </head>
 <style>
-	#birthBody{
-		
-	}
-	#birthSection{
-		
-	}
     #birthContainer{
-    	
     	margin-top: 30px;
     }
     #birthInfoOuter{
     	margin: auto;
     	width: 100%;
-    	
-    	/*border: 1px solid black;*/
-    	/*padding: 3rem;*/
     }
     #infoBirthService{
     	margin: auto;
     	width: 80%;
-    }
-    .per_amount, .sending_time{
-    	
     }
     .per_amount input[name="per_amount"], .sending_time input[name="sending_time"]{
 		display:none;
@@ -92,7 +79,7 @@
 	}
 </style>
 <script>
-	<%-- ddd --%>
+	<%-- footer 설정 --%>
 	$(function(){
 		$("#footer").css("margin-top","150px");
 	});
@@ -131,9 +118,7 @@
 				$("#sending_time3").prop("checked",true);
 				break;		
 			}
-
 		}
-
 	});
 </script>
 <body id="birthBody">

@@ -23,13 +23,10 @@
     	overflow-y: scroll;
     }
 	#sendingTab{
-
         width: 40%;
     }
     #sendingTab>li>p {
         cursor: pointer;
-        
-        
     }
     #sendingTab>li{
     	width: 40%;
@@ -50,9 +47,6 @@
     	padding-bottom: 0;
     	border-bottom: 0;
     	overflow: hidden;
-    }
-     #birthCard > .card-body{
-        
     }
     #sending_expected_table, #sending_complete_table{
     	border: 1px solid lightgray;

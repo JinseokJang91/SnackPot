@@ -15,20 +15,12 @@
 <title>발송 현황</title>
 </head>
 <style>
-	#birthBody{
-		
-	}
-	#birthSection{
-	
-	}
 	#birthContainer{
     	margin-top: 12px;
-    	
     }
     #birthCard{
     	height: 722px;
     	overflow-y: scroll;
-    	/*background: rgb(241, 251, 255);*/
     	width: 96%;
     	margin: auto;
     }
@@ -56,7 +48,6 @@
     	margin: 1px;
     }
     #sending_expected, #sending_complete{
-
         margin-right: 10px;
     }
     #tabArea{
@@ -88,6 +79,7 @@
 		margin: auto;
 		color: rgb(10, 23, 78);
     }
+    
     /*footer 조절*/
 	html, body{
 		height: 100%;
@@ -113,7 +105,7 @@
 		var presentDate = new Date();
 		var presentYear = presentDate.getFullYear();
 		var presentMonth = presentDate.getMonth()+1;
-		console.log(presentMonth);
+		//console.log(presentMonth);
 		
 		$("#sendListTitle").html(presentYear + "년 " + presentMonth + "월 발송 현황");
 	});
@@ -428,7 +420,9 @@
 						$.each(list, function(index, item){
 							var parsedBirth = dateParse(item.cempBirth);
 							var parsedSelectDate = dateParse(item.selectDate);
-							var phoneNumber = (item.cempPhone).substring(0, 3) + '-' + (item.cempPhone).substring(3, 7) + '-' + (item.cempPhone).substring(7, 11);
+							var phoneNumber = (item.cempPhone).substring(0, 3) + '-' 
+											+ (item.cempPhone).substring(3, 7) + '-' 
+											+ (item.cempPhone).substring(7, 11);
 							
 							result += '<tr>';
 							result += '<td>' + (index+1) + '</td>';

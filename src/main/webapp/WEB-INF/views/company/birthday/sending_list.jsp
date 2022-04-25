@@ -80,7 +80,6 @@
     	color: rgb(10, 23, 78);
     	font-weight: bold;
     }
-    
     #sendListTitle{
 		width: 92%;
 		margin: auto;

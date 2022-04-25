@@ -55,7 +55,9 @@ public class SendListController {
 				
 				list.get(i).setSendMsgDate(thisYear + (sdf.format(cal.getTime())).substring(4));
 				
-				String phone = (list.get(i).getCempPhone()).substring(0,3)+"-"+(list.get(i).getCempPhone()).substring(3,7)+"-"+(list.get(i).getCempPhone().substring(7,11));
+				String phone = (list.get(i).getCempPhone()).substring(0,3)+"-"
+							  +(list.get(i).getCempPhone()).substring(3,7)+"-"
+							  +(list.get(i).getCempPhone().substring(7,11));
 				
 				list.get(i).setCempPhone(phone);
 			}
@@ -136,7 +138,8 @@ public class SendListController {
 
 		int result2 = sendListService.insertSendList2(s);
 		
-		return String.valueOf(result);
+		//return String.valueOf(result);
+		return String.valueOf(result+result2);
 		
 	}
 	
@@ -148,7 +151,7 @@ public class SendListController {
 		
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		
-		s.setCempBirthSdf(sdf.format(s.getCempBirth()));	
+		s.setCempBirthSdf(sdf.format(s.getCempBirth()));
 		
 		return s;
 		
